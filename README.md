@@ -45,7 +45,7 @@ client.search(entity, term)
 client.artist_top_tracks(artist_id, country_id)
 ```
 
-Please also refer to the source file [spotify_client.rb](https://github.com/icoretech/spotify-client/blob/master/lib/spotify-client.rb).
+Please also refer to the source file [spotify_client.rb](https://github.com/icoretech/spotify-client/blob/master/lib/spotify_client.rb).
 Other initialization options:
 
 ```ruby
