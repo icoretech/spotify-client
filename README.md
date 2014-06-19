@@ -1,6 +1,6 @@
 # spotify-client
 
-Ruby Client for Spotify Web API.
+Ruby Client for the [Spotify Web API](https://developer.spotify.com/web-api/).
 
 [![Gem Version](https://badge.fury.io/rb/spotify-client.svg)](http://badge.fury.io/rb/spotify-client)
 
