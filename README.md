@@ -2,6 +2,8 @@
 
 Ruby Client for Spotify Web API.
 
+[![Gem Version](https://badge.fury.io/rb/spotify-client.svg)](http://badge.fury.io/rb/spotify-client)
+
 ## Installation
 
 Add this line to your application's Gemfile:
