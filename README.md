@@ -53,8 +53,9 @@ client = Spotify::Client.new
 ```
 
 If you want to perform authenticated calls include `access_token` during initialization.
+Note that there are particular calls that not only requires authentication but the correct scopes.
 
-Note that there are particular calls that requires authentication.
+Read more about scopes [here](https://developer.spotify.com/web-api/using-scopes/).
 
 ```ruby
 # Current methods' signatures
