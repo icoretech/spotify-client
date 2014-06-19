@@ -48,6 +48,7 @@ If you want to perform authenticated calls include `access_token` during initial
 
 Note that there are particular calls that requires authentication.
 
+```ruby
 # Current methods' signatures
 client.me
 client.user(user_id)
