@@ -1,0 +1,25 @@
+{
+  "collaborative" : false,
+  "description" : null,
+  "external_urls" : {
+    "spotify" : "http://open.spotify.com/user/masterkain/playlists/7Kud0O2IdWLbEGgvBkW9di"
+  },
+  "followers" : null,
+  "href" : "https://api.spotify.com/v1/users/masterkain/playlists/7Kud0O2IdWLbEGgvBkW9di",
+  "id" : "7Kud0O2IdWLbEGgvBkW9di",
+  "images" : [ null ],
+  "name" : "Test from API 3.0",
+  "owner" : {
+    "external_urls" : {
+      "spotify" : "http://open.spotify.com/user/masterkain"
+    },
+    "href" : "https://api.spotify.com/v1/users/masterkain",
+    "id" : "masterkain",
+    "type" : "user",
+  "uri": "spotify:user:masterkain"
+  },
+  "public" : true,
+  "tracks" : null,
+  "type" : "playlist",
+  "uri" : "spotify:user:masterkain:playlist:7Kud0O2IdWLbEGgvBkW9di"
+}

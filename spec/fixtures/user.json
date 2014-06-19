@@ -1,0 +1,9 @@
+{
+  "external_urls": {
+    "spotify": "https://open.spotify.com/user/masterkain"
+  },
+  "href": "https://api.spotify.com/v1/users/masterkain",
+  "id": "masterkain",
+  "type": "user",
+  "uri": "spotify:user:masterkain"
+}
