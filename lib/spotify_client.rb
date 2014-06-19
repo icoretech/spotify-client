@@ -61,7 +61,7 @@ module Spotify
     # Requires playlist-modify for a public playlist.
     # Requires playlist-modify-private for a private playlist.
     def create_user_playlist(user_id, name, is_public = true)
-      run(:post, "/v1/users/#{user_id}/playlists", [201], JSON.dump({ :name => name, :public => is_public }))
+      run(:post, "/v1/users/#{user_id}/playlists", [201], JSON.dump({ :name => name, :public => is_public }), false)
     end
 
     # Add an Array of track uris to an existing playlist.
@@ -75,7 +75,7 @@ module Spotify
       if position
         params.merge!(:position => position)
       end
-      run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], params)
+      run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], params, false)
     end
 
     def album(album_id)

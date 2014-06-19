@@ -16,6 +16,12 @@ Or install it yourself as:
 
     $ gem install spotify-client
 
+## Features
+
+* Optional persistent connections
+* Ease of use
+* Light footprint
+
 ## Usage / Notes
 
 This gem is pretty new and it should not be used in production environments yet.
@@ -23,9 +29,24 @@ This gem is pretty new and it should not be used in production environments yet.
 It has been tested on Ruby 2.1+ only. Feel free to play around with it.
 
 ```ruby
-client = Spotify::Client.new(:access_token => 'longtoken', retries: 0, raise_errors: true)
-# or accepts the defaults
+# Sample configuration:
+config = {
+  :access_token => 'tk',  # initializes the client with an access token for authenticated calls
+  :raise_errors => true,  #  choose between returning false or raising a proper exception when API calls fails
+  # Connection properties
+  :retries       => 0,    # automatically retry a certain number of times before returning
+  :read_timeout  => 10,   # set longer read_timeout, default is 10 seconds
+  :write_timeout => 10,   # set longer write_timeout, default is 10 seconds
+  :persistent    => false # when true, make multiple requests calls using a single persistent connection. Use +close_connection+ method on the client to manually clean up sockets
+}
+client = Spotify::Client.new(config)
+# or with default options
 client = Spotify::Client.new
+```
+
+If you want to perform authenticated calls include `access_token` during initialization.
+
+Note that there are particular calls that requires authentication.
 
 # Current methods' signatures
 client.me
@@ -48,21 +69,6 @@ client.artist_top_tracks(artist_id, country_id)
 ```
 
 Please also refer to the source file [spotify_client.rb](https://github.com/icoretech/spotify-client/blob/master/lib/spotify_client.rb).
-Other initialization options:
-
-```ruby
-:access_token  # initializes the client with an access token for authenticated calls
-:raise_errors  # choose between returning false or raising a proper exception when API calls fails
-```
-
-Connection properties:
-
-```ruby
-:retries       # automatically retry a certain number of times before returning errors/false
-:read_timeout  # set longer read_timeout, default is 10 seconds
-:write_timeout # set longer write_timeout, default is 10 seconds
-:persistent    # if true, make multiple requests calls using a single persistent connection. Use +close_connection+ method on the client to manually clean up sockets
-```
 
 More documentation will follow.
 
