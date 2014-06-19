@@ -6,17 +6,23 @@ Ruby Client for Spotify Web API.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's `Gemfile`:
 
-    gem 'spotify-client'
+```ruby
+gem 'spotify-client'
+```
 
 And then execute:
 
-    $ bundle
+```bash
+$ bundle
+```
 
 Or install it yourself as:
 
-    $ gem install spotify-client
+```bash
+$ gem install spotify-client
+```
 
 ## Features
 
