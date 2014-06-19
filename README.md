@@ -91,7 +91,7 @@ More documentation will follow.
 
 * Finish the spec suite and start implementing VCR instead of single response mocks, which doesn't add much value.
 * More OAuth2 features?
-* Modeling / Hashie / Indifferent Access response incapsulation?
+* Modeling / Hashie / Indifferent Access response encapsulation?
 * CI setup
 
 ## License
