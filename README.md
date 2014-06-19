@@ -39,8 +39,9 @@ It has been tested on Ruby 2.1+ only. Feel free to play around with it.
 ```ruby
 # Sample configuration:
 config = {
-  :access_token => 'tk',  # initializes the client with an access token for authenticated calls
-  :raise_errors => true,  #  choose between returning false or raising a proper exception when API calls fails
+  :access_token => 'tk',  # initialize the client with an access token to perform authenticated calls
+  :raise_errors => true,  # choose between returning false or raising a proper exception when API calls fails
+
   # Connection properties
   :retries       => 0,    # automatically retry a certain number of times before returning
   :read_timeout  => 10,   # set longer read_timeout, default is 10 seconds
@@ -48,7 +49,7 @@ config = {
   :persistent    => false # when true, make multiple requests calls using a single persistent connection. Use +close_connection+ method on the client to manually clean up sockets
 }
 client = Spotify::Client.new(config)
-# or with default options
+# or with default options:
 client = Spotify::Client.new
 ```
 
@@ -80,7 +81,7 @@ client.artist_top_tracks(artist_id, country_id)
 
 Please also refer to the source file [spotify_client.rb](https://github.com/icoretech/spotify-client/blob/master/lib/spotify_client.rb).
 
-More documentation will follow.
+More documentation will follow soon.
 
 ## Goals
 
