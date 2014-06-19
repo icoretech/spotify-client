@@ -174,7 +174,7 @@ module Spotify
     rescue Excon::Errors::BadRequest => exception
       raise(BadRequest, "Error: #{exception.message}")
     rescue Excon::Errors::Forbidden => exception
-      raise(InsufficientClienScopeError, "Error: #{exception.message}")
+      raise(InsufficientClientScopeError, "Error: #{exception.message}")
     rescue Excon::Errors::Unauthorized => exception
       raise(AuthenticationError, "Error: #{exception.message}")
     rescue Excon::Errors::Error => exception
