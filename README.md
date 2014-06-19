@@ -19,13 +19,15 @@ Or install it yourself as:
 ## Usage / Notes
 
 This gem is pretty new and it should not be used in production environments yet.
-It has been tested on Ruby 2.1+ only.
+
+It has been tested on Ruby 2.1+ only. Feel free to play around with it.
 
 ```ruby
 client = Spotify::Client.new(:access_token => 'longtoken', retries: 0, raise_errors: true)
 # or accepts the defaults
 client = Spotify::Client.new
 
+# Current methods' signatures
 client.me
 client.user(user_id)
 client.user_playlists(user_id)
@@ -63,6 +65,16 @@ Connection properties:
 ```
 
 More documentation will follow.
+
+## Goals
+
+* Extremely light footprint, memory is always a concern.
+* Be future-proof.
+
+## TODO
+
+* Finish the spec suite and start implementing VCR instead of single response mocks, which doesn't add much value.
+* More OAuth2 features?
 
 ## License
 
