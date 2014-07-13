@@ -1,0 +1,27 @@
+{
+  "artists" : [ {
+    "external_urls" : { 
+      "spotify" : "https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x" 
+    },
+    "genres" : [ "Alternative Rap", "East Coast Rap", "Hardcore Rap", "Hip Hop", "Midwest Rap", "Pop-Rap", "Rap" ], 
+    "href" : "https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x",
+    "id" : "5K4W6rqBFWDnAN6FQUkS6x",
+    "images" : [ { 
+        "height" : 332, 
+        "url" : "https://i.scdn.co/image/cfb3056fbd696dfa7c49f00b95e58d310678b747",
+        "width" : 331
+      }, {
+        "height" : 201, 
+        "url" : "https://i.scdn.co/image/01405d36c7091a57b873ee5a91034ba7fc8eab8c", 
+        "width" : 200
+      }, {
+        "height" : 64,
+        "url" : "https://i.scdn.co/image/a2fe02386dcb76d7ecda994db995c3fb12694690",
+        "width" : 64
+      } ],
+    "name" : "Kanye West",
+    "popularity" : 93,
+    "type" : "artist",
+    "uri" : "spotify:artist:5K4W6rqBFWDnAN6FQUkS6x" 
+  } ]
+}
