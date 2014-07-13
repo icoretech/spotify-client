@@ -3,7 +3,7 @@
     "external_urls" : { 
       "spotify" : "https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x" 
     },
-    "genres" : [ ], 
+    "genres" : [ "Alternative Rap", "East Coast Rap", "Hardcore Rap", "Hip Hop", "Midwest Rap", "Pop-Rap", "Rap" ], 
     "href" : "https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x",
     "id" : "5K4W6rqBFWDnAN6FQUkS6x",
     "images" : [ { 
