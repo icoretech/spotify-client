@@ -126,6 +126,10 @@ module Spotify
     def artist_top_tracks(artist_id, country_id)
       run(:get, "/v1/artists/#{artist_id}/top-tracks", [200], { :country => country_id })
     end
+    
+    def related_artists(artist_id)
+      run(:get, "/v1/artists/#{artist_id}/related-artists", [200])  
+    end
 
     protected
 
