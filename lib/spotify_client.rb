@@ -53,7 +53,22 @@ module Spotify
     end
 
     def user_playlist_tracks(user_id, playlist_id)
-      run(:get, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [200])
+      tracks = { "items" => [] }
+      path = "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks"
+
+      while path
+        response = run(:get, path, [200])
+        tracks["items"].concat(response.delete("items"))
+        tracks.merge!(response)
+
+        path = if response["next"]
+          response["next"].gsub(BASE_URI, '')
+        else
+          nil
+        end
+      end
+
+      tracks
     end
 
     # Create a playlist for a Spotify user. The playlist will be empty until you add tracks.
