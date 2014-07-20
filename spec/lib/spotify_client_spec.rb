@@ -71,6 +71,7 @@ describe Spotify::Client do
 
   describe ".user_playlist_tracks" do
     let(:fixture) { request_fixture('user_playlist_tracks') }
+    let(:next_fixture) { request_fixture('user_playlist_tracks_next') }
 
     it "should raise error as authenticated client" do
       Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
@@ -82,9 +83,11 @@ describe Spotify::Client do
     end
     it "should get response" do
       Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
+      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists/6Df19VKaShrdWrAnHinwVO/tracks?offset=1&limit=1", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => next_fixture })
       response = authenticated_client.user_playlist_tracks('masterkain', 'my')
-      expect(response.keys.count).to eq(1)
-      expect(response['tracks']).to be_a(Array)
+      expect(response.keys.count).to eq(7)
+      expect(response['items']).to be_a(Array)
+      expect(response['items'].count).to eq(2)
     end
   end
 

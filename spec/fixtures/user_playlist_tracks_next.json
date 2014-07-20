@@ -67,8 +67,8 @@
     }
   } ],
   "limit" : 1,
-  "next" : "https://api.spotify.com/v1/users/masterkain/playlists/6Df19VKaShrdWrAnHinwVO/tracks?offset=1&limit=1",
-  "offset" : 0,
+  "next" : null,
+  "offset" : 1,
   "previous" : null,
   "total" : 2
 }
