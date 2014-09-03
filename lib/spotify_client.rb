@@ -93,14 +93,23 @@ module Spotify
       run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], params, false)
     end
 
+    # Removes tracks from playlist
+    #
+    # client.remove_user_tracks_from_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', [{ uri: spotify:track:4iV5W9uYEdYUVa79Axb7Rh, positions: [0]}])
     def remove_user_tracks_from_playlist(user_id, playlist_id, tracks)
       run(:delete, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [200], JSON.dump({ :tracks => tracks }))
     end
 
+    # Replaces all occurrences of tracks with what's in the playlist
+    #
+    # client.replace_user_tracks_in_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
     def replace_user_tracks_in_playlist(user_id, playlist_id, tracks)
       run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump({ :uris => tracks }))
     end
 
+    # Removes all tracks in playlist
+    #
+    # client.truncate_user_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x')
     def truncate_user_playlist(user_id, playlist_id)
       replace_user_tracks_in_playlist(user_id, playlist_id, [])
     end
