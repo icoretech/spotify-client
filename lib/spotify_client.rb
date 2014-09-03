@@ -52,12 +52,12 @@ module Spotify
       run(:get, "/v1/users/#{user_id}/playlists/#{playlist_id}", [200])
     end
 
-    def user_playlist_tracks(user_id, playlist_id)
+    def user_playlist_tracks(user_id, playlist_id, params = {})
       tracks = { "items" => [] }
       path = "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks"
 
       while path
-        response = run(:get, path, [200])
+        response = run(:get, path, [200], params)
         tracks["items"].concat(response.delete("items"))
         tracks.merge!(response)
 
@@ -91,6 +91,10 @@ module Spotify
         params.merge!(:position => position)
       end
       run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], params, false)
+    end
+
+    def remove_user_tracks_from_playlist(user_id, playlist_id, tracks)
+      run(:delete, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [200], JSON.dump({ :tracks => tracks }))
     end
 
     def album(album_id)
