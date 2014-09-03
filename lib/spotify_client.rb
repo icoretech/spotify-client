@@ -97,6 +97,14 @@ module Spotify
       run(:delete, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [200], JSON.dump({ :tracks => tracks }))
     end
 
+    def replace_user_tracks_in_playlist(user_id, playlist_id, tracks)
+      run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump({ :uris => tracks }))
+    end
+
+    def truncate_user_playlist(user_id, playlist_id)
+      replace_user_tracks_in_playlist(user_id, playlist_id, [])
+    end
+
     def album(album_id)
       run(:get, "/v1/albums/#{album_id}", [200])
     end
