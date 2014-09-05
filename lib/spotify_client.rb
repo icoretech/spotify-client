@@ -153,14 +153,14 @@ module Spotify
       unless [:artist, :album, :track].include?(entity.to_sym)
         fail(ImplementationError, "entity needs to be either artist, album or track, got: #{entity}")
       end
-      run(:get, '/v1/search', [200],  q: term.to_s, type: entity)
+      run(:get, '/v1/search', [200], q: term.to_s, type: entity)
     end
 
     # Get Spotify catalog information about an artist's top 10 tracks by country.
     #
     # +country_id+ is required. An ISO 3166-1 alpha-2 country code.
     def artist_top_tracks(artist_id, country_id)
-      run(:get, "/v1/artists/#{artist_id}/top-tracks", [200],  country: country_id)
+      run(:get, "/v1/artists/#{artist_id}/top-tracks", [200], country: country_id)
     end
 
     def related_artists(artist_id)
