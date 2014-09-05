@@ -24,11 +24,12 @@ Or install it yourself as:
 $ gem install spotify-client
 ```
 
-## Features
+## Features and Goals
 
 * Optional persistent connections
 * Ease of use
-* Light footprint
+* Extremely light footprint, memory is always a concern.
+* Be future-proof.
 
 ## Usage / Notes
 
@@ -87,10 +88,10 @@ Please also refer to the source file [spotify_client.rb](https://github.com/icor
 
 More documentation will follow soon.
 
-## Goals
+## Authentication
 
-* Extremely light footprint, memory is always a concern.
-* Be future-proof.
+In order to use authenticated features you need to obtain access tokens.
+This feature is not supported (yet) by this gem, but if you'd like to let users authenticate against Spotify in a Rails/OmniAuth app you can use [icoretech/omniauth-spotify](https://github.com/icoretech/omniauth-spotify).
 
 ## TODO
 
