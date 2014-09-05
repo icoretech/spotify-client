@@ -73,7 +73,7 @@ module Spotify
 
     # Create a playlist for a Spotify user. The playlist will be empty until you add tracks.
     #
-    # Requires playlist-modify for a public playlist.
+    # Requires playlist-modify-public for a public playlist.
     # Requires playlist-modify-private for a private playlist.
     def create_user_playlist(user_id, name, is_public = true)
       run(:post, "/v1/users/#{user_id}/playlists", [201], JSON.dump({ :name => name, :public => is_public }), false)
@@ -81,7 +81,7 @@ module Spotify
 
     # Add an Array of track uris to an existing playlist.
     #
-    # Adding tracks to a user's public playlist requires authorization of the playlist-modify scope;
+    # Adding tracks to a user's public playlist requires authorization of the playlist-modify-public scope;
     # adding tracks to a private playlist requires the playlist-modify-private scope.
     #
     # client.add_user_tracks_to_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
