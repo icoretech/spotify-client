@@ -82,6 +82,8 @@ client.artist_albums(artist_id)
 client.search(entity, term)
 client.artist_top_tracks(artist_id, country_id)
 client.related_artists(artist_id)
+client.follow(type, ids)
+client.follow_playlist(user_id, playlist_id, is_public = true)
 ```
 
 Please also refer to the source file [spotify_client.rb](https://github.com/icoretech/spotify-client/blob/master/lib/spotify_client.rb).
