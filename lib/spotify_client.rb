@@ -107,6 +107,11 @@ module Spotify
       run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump(uris: tracks))
     end
 
+    def follow(type, ids)
+      params = { type: type, ids: Array.wrap(ids).join(',') }
+      run(:put, "/v1/me/following", [204], params)
+    end
+
     # Removes all tracks in playlist
     #
     # client.truncate_user_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x')
