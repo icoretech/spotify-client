@@ -107,11 +107,6 @@ module Spotify
       run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump(uris: tracks))
     end
 
-    def follow(type, ids)
-      params = { type: type, ids: Array.wrap(ids).join(',') }
-      run(:put, "/v1/me/following", [204], params)
-    end
-
     # Removes all tracks in playlist
     #
     # client.truncate_user_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x')
@@ -170,6 +165,21 @@ module Spotify
 
     def related_artists(artist_id)
       run(:get, "/v1/artists/#{artist_id}/related-artists", [200])
+    end
+
+    # Follow artists or users
+    #
+    # client.follow('artist', ['0BvkDsjIUla7X0k6CSWh1I'])
+    def follow(type, ids)
+      params = { type: type, ids: Array.wrap(ids).join(',') }
+      run(:put, "/v1/me/following", [204], params)
+    end
+
+    # Follow a playlist
+    #
+    # client.follow_playlist('lukebryan', '0obRj9nNySESpFelMCLSya')
+    def follow_playlist(user_id, playlist_id, is_public = true)
+      run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/followers", [200], { public: is_public })
     end
 
     protected
