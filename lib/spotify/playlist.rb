@@ -17,7 +17,7 @@ module Spotify
 
     def attributes(options)
       options.each do |key, val|
-        key = key.to_s if key.is_a?(String)
+        key = key.to_s if key.is_a?(Symbol)
         next unless FIELDS.include?(key)
         send("#{key}=", val)
       end

@@ -28,6 +28,7 @@ describe Spotify::Playlist do
     end
 
     subject { Spotify::Playlist.create(client, 'Mola test') }
+
     it "returns playlist instance" do
       expect(subject).to be_instance_of(Spotify::Playlist)
     end
