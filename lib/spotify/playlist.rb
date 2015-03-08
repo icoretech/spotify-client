@@ -52,7 +52,7 @@ module Spotify
     # Adding tracks to a user's public playlist requires authorization of the playlist-modify-public scope;
     # adding tracks to a private playlist requires the playlist-modify-private scope.
     #
-    # client.add_tracks(%w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
+    # playlist.add_tracks(%w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
     def add_tracks(uris=[], position=nil)
       params = { uris: Array.wrap(uris)[0..99].join(',') }
       if position
@@ -63,14 +63,14 @@ module Spotify
 
     # Replaces all occurrences of tracks with what's in the playlist
     #
-    # client.replace_user_tracks_in_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
+    # playlist.replace_tracks(%w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
     def replace_tracks(tracks)
       client.run(:put, "/v1/users/#{user_id}/playlists/#{id}/tracks", [201], JSON.dump(uris: tracks))
     end
 
     # Removes all tracks in playlist
     #
-    # client.truncate_user_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x')
+    # playlist.truncate
     def truncate
       replace_tracks([])
     end
