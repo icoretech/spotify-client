@@ -3,6 +3,7 @@ require 'json'
 
 require File.dirname(__FILE__) + '/spotify/utils'
 require File.dirname(__FILE__) + '/spotify/exceptions'
+require File.dirname(__FILE__) + '/spotify/playlist'
 
 module Spotify
   class Client
@@ -86,32 +87,32 @@ module Spotify
     #
     # client.add_user_tracks_to_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
     def add_user_tracks_to_playlist(user_id, playlist_id, uris = [], position = nil)
-      params = { uris: Array.wrap(uris)[0..99].join(',') }
-      if position
-        params.merge!(position: position)
-      end
-      run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], params, false)
+      playlist = Playlist.new(self, 'id' => playlist_id)
+      playlist.add_tracks(uris, position)
     end
 
     # Removes tracks from playlist
     #
     # client.remove_user_tracks_from_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', [{ uri: spotify:track:4iV5W9uYEdYUVa79Axb7Rh, positions: [0]}])
     def remove_user_tracks_from_playlist(user_id, playlist_id, tracks)
-      run(:delete, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [200], JSON.dump(tracks: tracks))
+      playlist = Playlist.new(self, 'id' => playlist_id)
+      playlist.remove_tracks(tracks)
     end
 
     # Replaces all occurrences of tracks with what's in the playlist
     #
     # client.replace_user_tracks_in_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
     def replace_user_tracks_in_playlist(user_id, playlist_id, tracks)
-      run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump(uris: tracks))
+      playlist = Playlist.new(self, 'id' => playlist_id)
+      playlist.replace_tracks(tracks)
     end
 
     # Removes all tracks in playlist
     #
     # client.truncate_user_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x')
     def truncate_user_playlist(user_id, playlist_id)
-      replace_user_tracks_in_playlist(user_id, playlist_id, [])
+      playlist = Playlist.new(self, 'id' => playlist_id)
+      playlist.truncate
     end
 
     def album(album_id)
@@ -181,8 +182,6 @@ module Spotify
     def follow_playlist(user_id, playlist_id, is_public = true)
       run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/followers", [200], { public: is_public })
     end
-
-    protected
 
     def run(verb, path, expected_status_codes, params = {}, idempotent = true)
       run!(verb, path, expected_status_codes, params, idempotent)
