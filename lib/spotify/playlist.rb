@@ -36,7 +36,8 @@ module Spotify
       end
     end
 
-    # Create a playlist for a Spotify user. The playlist will be empty until you add tracks.
+    # Create a playlist for a Spotify user. The playlist will be empty until
+    # you add tracks.
     #
     # Requires playlist-modify-public for a public playlist.
     # Requires playlist-modify-private for a private playlist.
@@ -49,8 +50,9 @@ module Spotify
 
     # Add an Array of track uris to an existing playlist.
     #
-    # Adding tracks to a user's public playlist requires authorization of the playlist-modify-public scope;
-    # adding tracks to a private playlist requires the playlist-modify-private scope.
+    # Adding tracks to a user's public playlist requires authorization of the
+    # playlist-modify-public scope; adding tracks to a private playlist
+    # requires the playlist-modify-private scope.
     #
     # playlist.add_tracks(%w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
     def add_tracks(uris=[], position=nil)
@@ -59,6 +61,26 @@ module Spotify
         params.merge!(position: position)
       end
       client.run(:post, "/v1/users/#{user_id}/playlists/#{id}/tracks", [201], params, false)
+    end
+
+    # Get full details of the tracks of a playlist owned by user
+    def tracks(params={})
+      tracks = { 'items' => [] }
+      path = "/v1/users/#{user_id}/playlists/#{id}/tracks"
+
+      while path
+        response = client.run(:get, path, [200], params)
+        tracks['items'].concat(response.delete('items'))
+        tracks.merge!(response)
+
+        path = if response['next']
+          response['next'].gsub(Spotify::Client::BASE_URI, '')
+        else
+          nil
+        end
+      end
+
+      tracks
     end
 
     # Replaces all occurrences of tracks with what's in the playlist
