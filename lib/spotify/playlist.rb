@@ -65,14 +65,14 @@ module Spotify
     #
     # client.replace_user_tracks_in_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
     def replace_tracks(tracks)
-      run(:put, "/v1/users/#{user_id}/playlists/#{id}/tracks", [201], JSON.dump(uris: tracks))
+      client.run(:put, "/v1/users/#{user_id}/playlists/#{id}/tracks", [201], JSON.dump(uris: tracks))
     end
 
     # Removes all tracks in playlist
     #
     # client.truncate_user_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x')
     def truncate
-      replace_user_tracks_in_playlist(user_id, id, [])
+      replace_tracks([])
     end
   end
 end
