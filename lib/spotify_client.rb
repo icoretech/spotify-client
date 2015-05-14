@@ -40,6 +40,10 @@ module Spotify
       run(:get, '/v1/me', [200])
     end
 
+    def me_tracks
+      run(:get, '/v1/me/tracks', [200])
+    end
+
     def user(user_id)
       run(:get, "/v1/users/#{user_id}", [200])
     end
