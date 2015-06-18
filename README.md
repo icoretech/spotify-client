@@ -63,6 +63,7 @@ Read more about scopes [here](https://developer.spotify.com/web-api/using-scopes
 # Current methods' signatures
 client.me
 client.user(user_id)
+client.me_tracks
 client.user_playlists(user_id)
 client.user_playlist(user_id, playlist_id)
 client.user_playlist_tracks(user_id, playlist_id, params = {})
