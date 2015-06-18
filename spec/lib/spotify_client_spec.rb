@@ -28,6 +28,28 @@ describe Spotify::Client do
     end
   end
 
+  describe ".me_tracks" do
+    let(:fixture) { request_fixture('me_tracks') }
+
+    it "should raise error as authenticated client" do
+      Excon.stub({ :method => :get, :path => '/v1/me/tracks', :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
+      expect {authenticated_client.me_tracks}.to raise_error(Spotify::AuthenticationError)
+    end
+    it "should raise error as anonymous client" do
+      Excon.stub({ :method => :get, :path => '/v1/me/tracks' }, { :status => 401 })
+      expect {anonymous_client.me_tracks}.to raise_error(Spotify::AuthenticationError)
+    end
+    it "should get response" do
+      Excon.stub({ :method => :get, :path => '/v1/me/tracks', :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
+      response = authenticated_client.me_tracks
+      
+      expect(response.keys.count).to eq(7)
+      expect(response['href']).to match(/http/)
+      expect(response['total']).to be_a(Integer)
+      expect(response['items']).to be_a(Array)
+    end
+  end
+
   describe ".user" do
     let(:fixture) { request_fixture('user') }
 
