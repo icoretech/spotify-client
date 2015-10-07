@@ -146,7 +146,7 @@ module Spotify
 
     def artists(artist_ids)
       params = { ids: Array.wrap(artist_ids).join(',') }
-      run(:get, '/v1/tracks', [200], params)
+      run(:get, '/v1/artists', [200], params)
     end
 
     def artist_albums(artist_id)
