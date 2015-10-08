@@ -94,7 +94,7 @@ module Spotify
       if position
         params.merge!(position: position)
       end
-      run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], params, false)
+      run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump(params), false)
     end
 
     # Removes tracks from playlist
