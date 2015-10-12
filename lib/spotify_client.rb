@@ -44,6 +44,15 @@ module Spotify
       run(:get, '/v1/me/tracks', [200])
     end
 
+    # params:
+    # - type: Required, The ID type, currently only 'artist' is supported
+    # - limit: Optional. The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50.
+    # - after: Optional. The last artist ID retrieved from the previous request.
+    def me_following(params={})
+      params = params.merge(type: 'artist')
+      run(:get, "/v1/me/following", [200], params)
+    end
+
     def user(user_id)
       run(:get, "/v1/users/#{user_id}", [200])
     end

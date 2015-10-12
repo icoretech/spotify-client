@@ -1,0 +1,73 @@
+{
+  "artists": {
+    "items": [{
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/1Cs0zKBU1kc0i8ypK3B9ai"
+      },
+      "followers": {
+        "href": null,
+        "total": 7181623
+      },
+      "genres": ["edm", "electro house", "house"],
+      "href": "https://api.spotify.com/v1/artists/1Cs0zKBU1kc0i8ypK3B9ai",
+      "id": "1Cs0zKBU1kc0i8ypK3B9ai",
+      "images":[{
+          "height": 1500,
+          "url": "https://i.scdn.co/image/26b98e5d8460cda21f5c6f3a487694f8b926557d",
+          "width": 1000
+        }, {
+          "height": 960,
+          "url": "https://i.scdn.co/image/de2597004ad9095d519a0cc54adecd490e390beb",
+          "width": 640
+        }, {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ac58b62ef5d7ae28e6dab2d70c521eaf58e7b343",
+          "width": 200
+        }, {
+          "height": 96,
+          "url": "https://i.scdn.co/image/224f5a395a8e2b4eee9feb41b9f6e7ac2d6b7c1a",
+          "width": 64
+      }],
+      "name": "David Guetta",
+      "popularity": 89,
+      "type": "artist",
+      "uri": "spotify:artist:1Cs0zKBU1kc0i8ypK3B9ai"
+      }, {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/2Hjj68yyUPiC0HKEOigcEp"
+      },
+      "followers": {
+        "href": null,
+        "total": 189807
+      },
+      "genres": ["teen pop"],
+      "href": "https://api.spotify.com/v1/artists/2Hjj68yyUPiC0HKEOigcEp",
+      "id": "2Hjj68yyUPiC0HKEOigcEp",
+      "images": [{
+          "height": 1500,
+          "url": "https://i.scdn.co/image/e7ad1592061c2b0314da99d5c1355a4539e6950a",
+          "width": 1000
+        }, {
+          "height": 960,
+          "url": "https://i.scdn.co/image/325f7e6200695572a035b6d1673d58abaf209dc1",
+          "width": 640
+        }, {
+          "height": 300,
+          "url": "https://i.scdn.co/image/792b729b337753edf8a0125fd203e4182765ea9a",
+          "width": 200
+        }, {
+          "height": 96,
+           "url": "https://i.scdn.co/image/61bcc608fa4a58dff09fd5dad12fcf1e7250cf2c",
+           "width": 64
+      }],
+      "name": "Jesse McCartney",
+      "popularity": 64,
+      "type": "artist",
+      "uri": "spotify:artist:2Hjj68yyUPiC0HKEOigcEp"
+      }],
+   "next": null,
+   "total": 2,
+   "cursors": {"after": null},
+   "limit": 20
+  }
+}
