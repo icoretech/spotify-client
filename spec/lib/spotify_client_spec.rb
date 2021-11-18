@@ -157,4 +157,12 @@ describe Spotify::Client do
       # expect(response['tracks']).to be_a(Array)
     end
   end
+
+  describe ".search" do
+    it "should pass additional options as search parameters" do
+      Excon.stub({ :method => :get, :path => "/v1/search" }, { :status => 200 })
+      expect(authenticated_client).to receive(:run).with(any_args, hash_including(q: "bob", limit: 5))
+      authenticated_client.search(:artist, "bob", limit: 5)
+    end
+  end
 end
