@@ -162,11 +162,15 @@ module Spotify
       run(:get, "/v1/artists/#{artist_id}/albums", [200])
     end
 
-    def search(entity, term)
+    def search(entity, term, options={})
       unless [:artist, :album, :track].include?(entity.to_sym)
         fail(ImplementationError, "entity needs to be either artist, album or track, got: #{entity}")
       end
-      run(:get, '/v1/search', [200], q: term.to_s, type: entity)
+      params = {
+        q: term.to_s,
+        type: entity
+      }.merge(options)
+      run(:get, '/v1/search', [200], params)
     end
 
     # Get Spotify catalog information about an artist's top 10 tracks by country.
