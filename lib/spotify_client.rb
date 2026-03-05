@@ -44,6 +44,22 @@ module Spotify
       run(:get, '/v1/me/tracks', [200])
     end
 
+    def me_albums(params = {})
+      run(:get, '/v1/me/albums', [200], params)
+    end
+
+    def me_audiobooks(params = {})
+      run(:get, '/v1/me/audiobooks', [200], params)
+    end
+
+    def me_episodes(params = {})
+      run(:get, '/v1/me/episodes', [200], params)
+    end
+
+    def me_shows(params = {})
+      run(:get, '/v1/me/shows', [200], params)
+    end
+
     # params:
     # - type: Required, The ID type, currently only 'artist' is supported
     # - limit: Optional. The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50.
@@ -66,7 +82,7 @@ module Spotify
     end
 
     def user_playlist(_user_id, playlist_id)
-      run(:get, "/v1/playlists/#{playlist_id}", [200])
+      playlist(playlist_id)
     end
 
     def user_playlist_tracks(_user_id, playlist_id, params = {})
@@ -90,6 +106,10 @@ module Spotify
     # Requires playlist-modify-private for a private playlist.
     def create_user_playlist(_user_id, name, is_public = true)
       run(:post, '/v1/me/playlists', [201], JSON.dump(name: name, public: is_public), false)
+    end
+
+    def change_playlist_details(_user_id, playlist_id, attributes = {})
+      run(:put, "/v1/playlists/#{playlist_id}", [200, 204], JSON.dump(attributes), false)
     end
 
     # Add an Array of track uris to an existing playlist.
@@ -131,6 +151,18 @@ module Spotify
       replace_user_tracks_in_playlist(user_id, playlist_id, [])
     end
 
+    def playlist(playlist_id)
+      run(:get, "/v1/playlists/#{playlist_id}", [200])
+    end
+
+    def playlist_cover_image(playlist_id)
+      run(:get, "/v1/playlists/#{playlist_id}/images", [200], {})
+    end
+
+    def upload_playlist_cover_image(playlist_id, image_base64_jpeg)
+      run(:put, "/v1/playlists/#{playlist_id}/images", [200, 202, 204], image_base64_jpeg.to_s, false)
+    end
+
     def album(album_id)
       run(:get, "/v1/albums/#{album_id}", [200])
     end
@@ -163,6 +195,30 @@ module Spotify
       run(:get, "/v1/artists/#{artist_id}/albums", [200])
     end
 
+    def audiobook(audiobook_id, params = {})
+      run(:get, "/v1/audiobooks/#{audiobook_id}", [200], params)
+    end
+
+    def audiobook_chapters(audiobook_id, params = {})
+      run(:get, "/v1/audiobooks/#{audiobook_id}/chapters", [200], params)
+    end
+
+    def chapter(chapter_id, params = {})
+      run(:get, "/v1/chapters/#{chapter_id}", [200], params)
+    end
+
+    def episode(episode_id, params = {})
+      run(:get, "/v1/episodes/#{episode_id}", [200], params)
+    end
+
+    def show(show_id, params = {})
+      run(:get, "/v1/shows/#{show_id}", [200], params)
+    end
+
+    def show_episodes(show_id, params = {})
+      run(:get, "/v1/shows/#{show_id}/episodes", [200], params)
+    end
+
     def search(entity, term, options = {})
       unless %i[artist album track].include?(entity.to_sym)
         raise(ImplementationError, "entity needs to be either artist, album or track, got: #{entity}")
@@ -190,6 +246,86 @@ module Spotify
       run(:get, "/v1/artists/#{artist_id}/related-artists", [200])
     end
 
+    def me_top(type, params = {})
+      valid_types = %w[artists tracks]
+      normalized_type = type.to_s
+      unless valid_types.include?(normalized_type)
+        raise(ImplementationError, "type needs to be one of #{valid_types.join(', ')}, got: #{type}")
+      end
+
+      run(:get, "/v1/me/top/#{normalized_type}", [200], params)
+    end
+
+    def currently_playing(params = {})
+      run(:get, '/v1/me/player/currently-playing', [200], params)
+    end
+
+    def recently_played(params = {})
+      run(:get, '/v1/me/player/recently-played', [200], params)
+    end
+
+    def playback_state(params = {})
+      run(:get, '/v1/me/player', [200], params)
+    end
+
+    def available_devices
+      run(:get, '/v1/me/player/devices', [200], {})
+    end
+
+    def transfer_playback(device_ids, play = nil)
+      body = { device_ids: Array(device_ids) }
+      body[:play] = play unless play.nil?
+      run(:put, '/v1/me/player', [200, 204], JSON.dump(body), false)
+    end
+
+    def start_or_resume_playback(payload = {})
+      run(:put, '/v1/me/player/play', [200, 204], JSON.dump(payload), false)
+    end
+
+    def pause_playback(params = {})
+      run(:put, '/v1/me/player/pause', [200, 204], params, false)
+    end
+
+    def skip_to_next(params = {})
+      run(:post, '/v1/me/player/next', [200, 204], params, false)
+    end
+
+    def skip_to_previous(params = {})
+      run(:post, '/v1/me/player/previous', [200, 204], params, false)
+    end
+
+    def seek_to_position(position_ms, params = {})
+      run(:put, '/v1/me/player/seek', [200, 204], params.merge(position_ms: position_ms), false)
+    end
+
+    def set_repeat_mode(state, params = {})
+      run(:put, '/v1/me/player/repeat', [200, 204], params.merge(state: state), false)
+    end
+
+    def set_playback_volume(volume_percent, params = {})
+      run(:put, '/v1/me/player/volume', [200, 204], params.merge(volume_percent: volume_percent), false)
+    end
+
+    def set_shuffle(state, params = {})
+      run(:put, '/v1/me/player/shuffle', [200, 204], params.merge(state: state), false)
+    end
+
+    def playback_queue(params = {})
+      run(:get, '/v1/me/player/queue', [200], params)
+    end
+
+    def add_to_playback_queue(uri, params = {})
+      run(:post, '/v1/me/player/queue', [200, 204], params.merge(uri: uri), false)
+    end
+
+    def add_to_library(uris)
+      run(:put, '/v1/me/library', [200, 204], JSON.dump(uris: Array(uris)), false)
+    end
+
+    def remove_from_library(uris)
+      run(:delete, '/v1/me/library', [200, 204], JSON.dump(uris: Array(uris)), false)
+    end
+
     # Follow artists or users
     #
     # client.follow('artist', ['0BvkDsjIUla7X0k6CSWh1I'])
@@ -203,7 +339,7 @@ module Spotify
 
         "spotify:#{entity_type}:#{raw}"
       end
-      run(:put, '/v1/me/library', [200, 204], JSON.dump(uris: uris), false)
+      add_to_library(uris)
     end
 
     # Follow a playlist
@@ -211,7 +347,7 @@ module Spotify
     # client.follow_playlist('lukebryan', '0obRj9nNySESpFelMCLSya')
     def follow_playlist(_user_id, playlist_id, is_public = true)
       _is_public = is_public # kept for backward-compatible signature
-      run(:put, '/v1/me/library', [200, 204], JSON.dump(uris: ["spotify:playlist:#{playlist_id}"]), false)
+      add_to_library(["spotify:playlist:#{playlist_id}"])
     end
 
     # Generic API helper for forward compatibility with newly added endpoints.
