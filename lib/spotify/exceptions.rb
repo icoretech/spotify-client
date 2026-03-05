@@ -1,5 +1,6 @@
 module Spotify
   class ImplementationError < StandardError; end
+  class EndpointUnavailableInDevelopmentMode < ImplementationError; end
   class Error < StandardError; end
   class AuthenticationError < Error; end
   class HTTPError < Error; end

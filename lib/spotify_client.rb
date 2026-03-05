@@ -21,6 +21,7 @@ module Spotify
       @retries       = config[:retries] || 0
       @read_timeout  = config[:read_timeout] || 10
       @write_timeout = config[:write_timeout] || 10
+      @app_mode      = config[:app_mode].to_s.strip.downcase
       @connection    = Excon.new(BASE_URI, persistent: config[:persistent] || false)
     end
 
@@ -53,6 +54,10 @@ module Spotify
     end
 
     def user(user_id)
+      raise_endpoint_unavailable_in_development_mode!(
+        endpoint: 'GET /v1/users/{id}',
+        replacement: 'GET /v1/me'
+      )
       run(:get, "/v1/users/#{user_id}", [200])
     end
 
@@ -66,7 +71,7 @@ module Spotify
 
     def user_playlist_tracks(_user_id, playlist_id, params = {})
       tracks = { 'items' => [] }
-      path = "/v1/playlists/#{playlist_id}/tracks"
+      path = "/v1/playlists/#{playlist_id}/items"
 
       while path
         response = run(:get, path, [200], params)
@@ -107,7 +112,7 @@ module Spotify
     #   '1181346016', '7i3thJWDtmX04dJhFwYb0x', [{ uri: 'spotify:track:...', positions: [0] }]
     # )
     def remove_user_tracks_from_playlist(_user_id, playlist_id, tracks)
-      run(:delete, "/v1/playlists/#{playlist_id}/tracks", [200], JSON.dump(tracks: tracks))
+      run(:delete, "/v1/playlists/#{playlist_id}/items", [200], JSON.dump(items: tracks))
     end
 
     # Replaces all occurrences of tracks with what's in the playlist
@@ -116,7 +121,7 @@ module Spotify
     #   '1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:... spotify:track:...)
     # )
     def replace_user_tracks_in_playlist(_user_id, playlist_id, tracks)
-      run(:put, "/v1/playlists/#{playlist_id}/tracks", [200, 201], JSON.dump(uris: tracks))
+      run(:put, "/v1/playlists/#{playlist_id}/items", [200, 201], JSON.dump(uris: tracks))
     end
 
     # Removes all tracks in playlist
@@ -135,8 +140,7 @@ module Spotify
     end
 
     def albums(album_ids)
-      params = { ids: Array(album_ids).join(',') }
-      run(:get, '/v1/albums', [200], params)
+      { 'albums' => Array(album_ids).map { |album_id| album(album_id) } }
     end
 
     def track(track_id)
@@ -144,8 +148,7 @@ module Spotify
     end
 
     def tracks(track_ids)
-      params = { ids: Array(track_ids).join(',') }
-      run(:get, '/v1/tracks', [200], params)
+      { 'tracks' => Array(track_ids).map { |track_id| track(track_id) } }
     end
 
     def artist(artist_id)
@@ -153,8 +156,7 @@ module Spotify
     end
 
     def artists(artist_ids)
-      params = { ids: Array(artist_ids).join(',') }
-      run(:get, '/v1/artists', [200], params)
+      { 'artists' => Array(artist_ids).map { |artist_id| artist(artist_id) } }
     end
 
     def artist_albums(artist_id)
@@ -165,6 +167,9 @@ module Spotify
       unless %i[artist album track].include?(entity.to_sym)
         raise(ImplementationError, "entity needs to be either artist, album or track, got: #{entity}")
       end
+
+      options = options.dup
+      options[:limit] = [options[:limit].to_i, 10].min if options.key?(:limit)
 
       params = {
         q: term.to_s,
@@ -177,7 +182,8 @@ module Spotify
     #
     # +country_id+ is required. An ISO 3166-1 alpha-2 country code.
     def artist_top_tracks(artist_id, country_id)
-      run(:get, "/v1/artists/#{artist_id}/top-songs", [200], market: country_id)
+      raise_endpoint_unavailable_in_development_mode!(endpoint: 'GET /v1/artists/{id}/top-tracks')
+      run(:get, "/v1/artists/#{artist_id}/top-tracks", [200], country: country_id)
     end
 
     def related_artists(artist_id)
@@ -188,16 +194,24 @@ module Spotify
     #
     # client.follow('artist', ['0BvkDsjIUla7X0k6CSWh1I'])
     def follow(type, ids)
-      _type = type # kept for backward-compatible signature
-      params = { ids: Array(ids).join(',') }
-      run(:put, '/v1/me/library', [200, 204], params)
+      entity_type = type.to_s.strip
+      uris = Array(ids).map do |id|
+        raw = id.to_s
+        next raw if raw.start_with?('spotify:')
+
+        raise(ImplementationError, 'type is required when ids are not full Spotify URIs') if entity_type.empty?
+
+        "spotify:#{entity_type}:#{raw}"
+      end
+      run(:put, '/v1/me/library', [200, 204], JSON.dump(uris: uris), false)
     end
 
     # Follow a playlist
     #
     # client.follow_playlist('lukebryan', '0obRj9nNySESpFelMCLSya')
     def follow_playlist(_user_id, playlist_id, is_public = true)
-      run(:put, "/v1/playlists/#{playlist_id}/followers", [200, 204], { public: is_public })
+      _is_public = is_public # kept for backward-compatible signature
+      run(:put, '/v1/me/library', [200, 204], JSON.dump(uris: ["spotify:playlist:#{playlist_id}"]), false)
     end
 
     # Generic API helper for forward compatibility with newly added endpoints.
@@ -211,6 +225,18 @@ module Spotify
     end
 
     protected
+
+    def raise_endpoint_unavailable_in_development_mode!(endpoint:, replacement: nil)
+      return unless development_mode?
+
+      message = "#{endpoint} is unavailable for Spotify Development Mode apps as of March 9, 2026."
+      message += " Use #{replacement} instead." if replacement
+      raise(EndpointUnavailableInDevelopmentMode, message)
+    end
+
+    def development_mode?
+      @app_mode == 'development' || @app_mode == 'development_mode'
+    end
 
     def run(verb, path, expected_status_codes, params = {}, idempotent = true)
       run!(verb, path, expected_status_codes, params, idempotent)

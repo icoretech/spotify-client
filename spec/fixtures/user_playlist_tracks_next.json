@@ -1,5 +1,5 @@
 {
-  "href" : "https://api.spotify.com/v1/playlists/6Df19VKaShrdWrAnHinwVO/tracks",
+  "href" : "https://api.spotify.com/v1/playlists/6Df19VKaShrdWrAnHinwVO/items",
   "items" : [ {
     "added_at" : "2013-08-21T15:10:32Z",
     "added_by" : {

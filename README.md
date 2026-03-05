@@ -33,6 +33,7 @@ The CI matrix runs this gem against Ruby `3.2`, `3.3`, `3.4`, `4.0`, and `ruby-h
 ```ruby
 config = {
   access_token: 'tk',
+  app_mode: :development, # optional; use :development to fail fast on dev-mode restricted endpoints
   raise_errors: true,
   retries: 0,
   read_timeout: 10,
@@ -80,11 +81,12 @@ client.request!(:post, '/v1/some-endpoint', [201], payload, false)
 Spotify's Web API changed and removed several legacy endpoints in 2026. This gem now uses current routes while keeping backward-compatible method signatures:
 
 - Playlist reads/writes use `/v1/me/playlists` and `/v1/playlists/{playlist_id}/*`.
-- `follow(type, ids)` keeps the same signature but now targets `/v1/me/library` (the `type` argument is ignored for compatibility).
-- `artist_top_tracks` now uses the top-songs route.
+- `follow(type, ids)` now targets `/v1/me/library` using Spotify URIs (`spotify:{type}:{id}`), while still accepting prebuilt URIs.
+- `artist_top_tracks` uses `/v1/artists/{id}/top-tracks`.
+- `user(user_id)` and `artist_top_tracks` rely on endpoints that Spotify marks unavailable for Development Mode apps (still usable for Extended Quota Mode apps).
+- If initialized with `app_mode: :development`, `user(user_id)` and `artist_top_tracks` raise `Spotify::EndpointUnavailableInDevelopmentMode` before making the HTTP request.
 
-- Changelog: [Spotify Web API Changelog](https://developer.spotify.com/documentation/web-api/concepts/changelog)
-- Migration guide: [Spotify Web API Migration Guide](https://developer.spotify.com/documentation/web-api/concepts/migration-guide)
+- February 2026 changes: [Spotify Web API Changes](https://developer.spotify.com/documentation/web-api/references/changes/february-2026)
 
 ## Development
 

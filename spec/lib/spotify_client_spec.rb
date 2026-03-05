@@ -122,16 +122,16 @@ describe Spotify::Client do
     let(:next_fixture) { request_fixture('user_playlist_tracks_next') }
 
     it "should raise error as authenticated client" do
-      Excon.stub({ :method => :get, :path => "/v1/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/my/items", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
       expect {authenticated_client.user_playlist_tracks('masterkain', 'my')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should raise error as anonymous client" do
-      Excon.stub({ :method => :get, :path => "/v1/playlists/my/tracks" }, { :status => 401 })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/my/items" }, { :status => 401 })
       expect {anonymous_client.user_playlist_tracks('masterkain', 'my')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should get response" do
-      Excon.stub({ :method => :get, :path => "/v1/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
-      Excon.stub({ :method => :get, :path => "/v1/playlists/6Df19VKaShrdWrAnHinwVO/tracks?offset=1&limit=1", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => next_fixture })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/my/items", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/6Df19VKaShrdWrAnHinwVO/items?offset=1&limit=1", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => next_fixture })
       response = authenticated_client.user_playlist_tracks('masterkain', 'my')
       expect(response.keys.count).to eq(7)
       expect(response['items']).to be_a(Array)
@@ -186,6 +186,11 @@ describe Spotify::Client do
   end
 
   describe ".search" do
+    it "should cap limit at 10" do
+      expect(authenticated_client).to receive(:run).with(any_args, hash_including(q: "bob", limit: 10))
+      authenticated_client.search(:artist, "bob", limit: 99)
+    end
+
     it "should pass additional options as search parameters" do
       Excon.stub({ :method => :get, :path => "/v1/search" }, { :status => 200 })
       expect(authenticated_client).to receive(:run).with(any_args, hash_including(q: "bob", limit: 5))
