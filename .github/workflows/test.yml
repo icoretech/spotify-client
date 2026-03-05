@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         ruby: ['3.2', '3.3', '3.4', '4.0', 'ruby-head']
-        excon: ['~> 0.112', '~> 1.4', 'head']
+        excon: ['~> 1.4', 'head']
 
     steps:
       - uses: actions/checkout@v6

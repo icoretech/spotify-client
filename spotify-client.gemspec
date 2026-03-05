@@ -31,6 +31,5 @@ Gem::Specification.new do |spec|
   ]
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'excon', '>= 0.112', '< 2.0'
-  spec.add_dependency 'logger', '>= 1.7'
+  spec.add_dependency 'excon', '>= 1.4', '< 2.0'
 end
