@@ -1,0 +1,50 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['3.2', '3.3', '3.4', '4.0', 'ruby-head']
+        excon: ['~> 0.112', '~> 1.4', 'head']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set matrix environment
+        run: echo "EXCON=${{ matrix.excon }}" >> "$GITHUB_ENV"
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: false
+
+      - name: Install dependencies
+        run: |
+          bundle config set frozen false
+          bundle install --jobs 4 --retry 2
+
+      - name: Lint and specs
+        run: bundle exec rake

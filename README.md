@@ -1,8 +1,8 @@
 # spotify-client
 
-Ruby Client for the [Spotify Web API](https://developer.spotify.com/web-api/).
+Ruby client for the [Spotify Web API](https://developer.spotify.com/documentation/web-api).
 
-[![Gem Version](https://badge.fury.io/rb/spotify-client.svg)](http://badge.fury.io/rb/spotify-client)
+[![Gem Version](https://badge.fury.io/rb/spotify-client.svg)](https://rubygems.org/gems/spotify-client)
 
 ## Installation
 
@@ -15,56 +15,42 @@ gem 'spotify-client'
 And then execute:
 
 ```bash
-$ bundle
+bundle install
 ```
 
 Or install it yourself as:
 
 ```bash
-$ gem install spotify-client
+gem install spotify-client
 ```
 
-## Features and Goals
+## Supported Ruby Versions
 
-* Optional persistent connections
-* Ease of use
-* Extremely light footprint, memory is always a concern.
-* Be future-proof.
+The CI matrix runs this gem against Ruby `3.2`, `3.3`, `3.4`, `4.0`, and `ruby-head`.
 
-## Usage / Notes
-
-This gem is pretty new and it should not be used in production environments yet.
-
-It has been tested on Ruby 2.1+ only. Feel free to play around with it.
+## Usage
 
 ```ruby
-# Sample configuration:
 config = {
-  :access_token => 'tk',  # initialize the client with an access token to perform authenticated calls
-  :raise_errors => true,  # choose between returning false or raising a proper exception when API calls fails
-
-  # Connection properties
-  :retries       => 0,    # automatically retry a certain number of times before returning
-  :read_timeout  => 10,   # set longer read_timeout, default is 10 seconds
-  :write_timeout => 10,   # set longer write_timeout, default is 10 seconds
-  :persistent    => false # when true, make multiple requests calls using a single persistent connection. Use +close_connection+ method on the client to manually clean up sockets
+  access_token: 'tk',
+  raise_errors: true,
+  retries: 0,
+  read_timeout: 10,
+  write_timeout: 10,
+  persistent: false
 }
+
 client = Spotify::Client.new(config)
-# or with default options:
-client = Spotify::Client.new
 ```
 
-If you want to perform authenticated calls include `access_token` during initialization.
-Note that there are particular calls that not only requires authentication but the correct scopes.
-
-Read more about scopes [here](https://developer.spotify.com/web-api/using-scopes/).
+## Public API
 
 ```ruby
-# Current methods' signatures
 client.me
-client.user(user_id)
 client.me_tracks
-client.user_playlists(user_id)
+client.me_following
+client.user(user_id)
+client.user_playlists(user_id) # user_id kept for backward compatibility; requests /v1/me/playlists
 client.user_playlist(user_id, playlist_id)
 client.user_playlist_tracks(user_id, playlist_id, params = {})
 client.create_user_playlist(user_id, name, is_public = true)
@@ -80,29 +66,39 @@ client.tracks(track_ids)
 client.artist(artist_id)
 client.artists(artist_ids)
 client.artist_albums(artist_id)
-client.search(entity, term)
+client.search(entity, term, options = {})
 client.artist_top_tracks(artist_id, country_id)
 client.related_artists(artist_id)
 client.follow(type, ids)
 client.follow_playlist(user_id, playlist_id, is_public = true)
+client.request(:get, '/v1/me') # generic helper for newer endpoints
+client.request!(:post, '/v1/some-endpoint', [201], payload, false)
 ```
 
-Please also refer to the source file [spotify_client.rb](https://github.com/icoretech/spotify-client/blob/master/lib/spotify_client.rb).
+## Spotify API Migration Notes
 
-More documentation will follow soon.
+Spotify's Web API changed and removed several legacy endpoints in 2026. This gem now uses current routes while keeping backward-compatible method signatures:
 
-## Authentication
+- Playlist reads/writes use `/v1/me/playlists` and `/v1/playlists/{playlist_id}/*`.
+- `follow(type, ids)` keeps the same signature but now targets `/v1/me/library` (the `type` argument is ignored for compatibility).
+- `artist_top_tracks` now uses the top-songs route.
 
-In order to use authenticated features you need to obtain access tokens.
-This feature is not supported (yet) by this gem, but if you'd like to let users authenticate against Spotify in a Rails/OmniAuth app you can use [icoretech/omniauth-spotify](https://github.com/icoretech/omniauth-spotify).
+- Changelog: [Spotify Web API Changelog](https://developer.spotify.com/documentation/web-api/concepts/changelog)
+- Migration guide: [Spotify Web API Migration Guide](https://developer.spotify.com/documentation/web-api/concepts/migration-guide)
 
-## TODO
+## Development
 
-* Finish the spec suite and start implementing VCR instead of single response mocks, which doesn't add much value.
-* More OAuth2 features?
-* Modeling / Hashie / Indifferent Access response encapsulation?
-* CI setup
+Install dependencies and run checks:
+
+```bash
+bundle install
+bundle exec rake
+```
+
+## Release
+
+Pushing a tag matching `v*` triggers the release workflow that builds and publishes the gem.
 
 ## License
 
-Please refer to [LICENSE.md](https://github.com/icoretech/spotify-client/blob/master/LICENSE).
+MIT. See [LICENSE](LICENSE).

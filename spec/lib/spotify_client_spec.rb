@@ -100,15 +100,15 @@ describe Spotify::Client do
     let(:fixture) { request_fixture('user_playlists') }
 
     it "should raise error as authenticated client" do
-      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
+      Excon.stub({ :method => :get, :path => "/v1/me/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
       expect {authenticated_client.user_playlists('masterkain')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should raise error as anonymous client" do
-      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists" }, { :status => 401 })
+      Excon.stub({ :method => :get, :path => "/v1/me/playlists" }, { :status => 401 })
       expect {anonymous_client.user_playlists('masterkain')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should get response" do
-      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
+      Excon.stub({ :method => :get, :path => "/v1/me/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
       response = authenticated_client.user_playlists('masterkain')
       expect(response.keys.count).to eq(3)
       expect(response['href']).to match(/http/)
@@ -122,16 +122,16 @@ describe Spotify::Client do
     let(:next_fixture) { request_fixture('user_playlist_tracks_next') }
 
     it "should raise error as authenticated client" do
-      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
       expect {authenticated_client.user_playlist_tracks('masterkain', 'my')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should raise error as anonymous client" do
-      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists/my/tracks" }, { :status => 401 })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/my/tracks" }, { :status => 401 })
       expect {anonymous_client.user_playlist_tracks('masterkain', 'my')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should get response" do
-      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
-      Excon.stub({ :method => :get, :path => "/v1/users/masterkain/playlists/6Df19VKaShrdWrAnHinwVO/tracks?offset=1&limit=1", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => next_fixture })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/my/tracks", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
+      Excon.stub({ :method => :get, :path => "/v1/playlists/6Df19VKaShrdWrAnHinwVO/tracks?offset=1&limit=1", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => next_fixture })
       response = authenticated_client.user_playlist_tracks('masterkain', 'my')
       expect(response.keys.count).to eq(7)
       expect(response['items']).to be_a(Array)
@@ -143,18 +143,45 @@ describe Spotify::Client do
     let(:fixture) { request_fixture('create_user_playlist') }
 
     it "should raise error as authenticated client" do
-      Excon.stub({ :method => :post, :path => "/v1/users/masterkain/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
+      Excon.stub({ :method => :post, :path => "/v1/me/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 401 })
       expect {authenticated_client.create_user_playlist('masterkain', 'my')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should raise error as anonymous client" do
-      Excon.stub({ :method => :post, :path => "/v1/users/masterkain/playlists" }, { :status => 401 })
+      Excon.stub({ :method => :post, :path => "/v1/me/playlists" }, { :status => 401 })
       expect {anonymous_client.create_user_playlist('masterkain', 'my')}.to raise_error(Spotify::AuthenticationError)
     end
     it "should get response" do
-      Excon.stub({ :method => :post, :path => "/v1/users/masterkain/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 201, :body => fixture })
+      Excon.stub({ :method => :post, :path => "/v1/me/playlists", :headers => { 'Authorization' => "Bearer test" } }, { :status => 201, :body => fixture })
       response = authenticated_client.create_user_playlist('masterkain', 'my')
       expect(response.keys.count).to eq(13)
       # expect(response['tracks']).to be_a(Array)
+    end
+  end
+
+  describe ".user_playlist" do
+    let(:fixture) { request_fixture('playlist') }
+
+    it "should use the modern playlist endpoint" do
+      Excon.stub({ :method => :get, :path => "/v1/playlists/my", :headers => { 'Authorization' => "Bearer test" } }, { :status => 200, :body => fixture })
+      response = authenticated_client.user_playlist("masterkain", "my")
+      expect(response['id']).to eq("4vHIKV7j4QcZwgzGQcZg1x")
+    end
+  end
+
+  describe ".add_user_tracks_to_playlist" do
+    let(:fixture) { '{"snapshot_id":"snapshot"}' }
+
+    it "should use the modern add-items endpoint" do
+      Excon.stub({ :method => :post, :path => "/v1/playlists/my/items", :headers => { 'Authorization' => "Bearer test" } }, { :status => 201, :body => fixture })
+      response = authenticated_client.add_user_tracks_to_playlist("masterkain", "my", ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh"])
+      expect(response['snapshot_id']).to eq("snapshot")
+    end
+  end
+
+  describe ".follow" do
+    it "should return empty hash for no-content responses" do
+      Excon.stub({ :method => :put, :path => "/v1/me/library", :headers => { 'Authorization' => "Bearer test" } }, { :status => 204, :body => '' })
+      expect(authenticated_client.follow('artist', ['0BvkDsjIUla7X0k6CSWh1I'])).to eq({})
     end
   end
 

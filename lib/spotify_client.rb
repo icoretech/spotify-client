@@ -1,8 +1,7 @@
 require 'excon'
 require 'json'
 
-require File.dirname(__FILE__) + '/spotify/utils'
-require File.dirname(__FILE__) + '/spotify/exceptions'
+require "#{File.dirname(__FILE__)}/spotify/exceptions"
 
 module Spotify
   class Client
@@ -48,37 +47,33 @@ module Spotify
     # - type: Required, The ID type, currently only 'artist' is supported
     # - limit: Optional. The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50.
     # - after: Optional. The last artist ID retrieved from the previous request.
-    def me_following(params={})
+    def me_following(params = {})
       params = params.merge(type: 'artist')
-      run(:get, "/v1/me/following", [200], params)
+      run(:get, '/v1/me/following', [200], params)
     end
 
     def user(user_id)
       run(:get, "/v1/users/#{user_id}", [200])
     end
 
-    def user_playlists(user_id)
-      run(:get, "/v1/users/#{user_id}/playlists", [200])
+    def user_playlists(_user_id = nil)
+      run(:get, '/v1/me/playlists', [200])
     end
 
-    def user_playlist(user_id, playlist_id)
-      run(:get, "/v1/users/#{user_id}/playlists/#{playlist_id}", [200])
+    def user_playlist(_user_id, playlist_id)
+      run(:get, "/v1/playlists/#{playlist_id}", [200])
     end
 
-    def user_playlist_tracks(user_id, playlist_id, params = {})
+    def user_playlist_tracks(_user_id, playlist_id, params = {})
       tracks = { 'items' => [] }
-      path = "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks"
+      path = "/v1/playlists/#{playlist_id}/tracks"
 
       while path
         response = run(:get, path, [200], params)
         tracks['items'].concat(response.delete('items'))
         tracks.merge!(response)
 
-        path = if response['next']
-          response['next'].gsub(BASE_URI, '')
-        else
-          nil
-        end
+        path = response['next']&.gsub(BASE_URI, '')
       end
 
       tracks
@@ -88,8 +83,8 @@ module Spotify
     #
     # Requires playlist-modify-public for a public playlist.
     # Requires playlist-modify-private for a private playlist.
-    def create_user_playlist(user_id, name, is_public = true)
-      run(:post, "/v1/users/#{user_id}/playlists", [201], JSON.dump(name: name, public: is_public), false)
+    def create_user_playlist(_user_id, name, is_public = true)
+      run(:post, '/v1/me/playlists', [201], JSON.dump(name: name, public: is_public), false)
     end
 
     # Add an Array of track uris to an existing playlist.
@@ -97,27 +92,31 @@ module Spotify
     # Adding tracks to a user's public playlist requires authorization of the playlist-modify-public scope;
     # adding tracks to a private playlist requires the playlist-modify-private scope.
     #
-    # client.add_user_tracks_to_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
-    def add_user_tracks_to_playlist(user_id, playlist_id, uris = [], position = nil)
-      params = { uris: Array.wrap(uris)[0..99].join(',') }
-      if position
-        params.merge!(position: position)
-      end
-      run(:post, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump(params), false)
+    # client.add_user_tracks_to_playlist(
+    #   '1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:... spotify:track:...)
+    # )
+    def add_user_tracks_to_playlist(_user_id, playlist_id, uris = [], position = nil)
+      params = { uris: Array(uris)[0..99].join(',') }
+      params.merge!(position: position) if position
+      run(:post, "/v1/playlists/#{playlist_id}/items", [200, 201], JSON.dump(params), false)
     end
 
     # Removes tracks from playlist
     #
-    # client.remove_user_tracks_from_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', [{ uri: spotify:track:4iV5W9uYEdYUVa79Axb7Rh, positions: [0]}])
-    def remove_user_tracks_from_playlist(user_id, playlist_id, tracks)
-      run(:delete, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [200], JSON.dump(tracks: tracks))
+    # client.remove_user_tracks_from_playlist(
+    #   '1181346016', '7i3thJWDtmX04dJhFwYb0x', [{ uri: 'spotify:track:...', positions: [0] }]
+    # )
+    def remove_user_tracks_from_playlist(_user_id, playlist_id, tracks)
+      run(:delete, "/v1/playlists/#{playlist_id}/tracks", [200], JSON.dump(tracks: tracks))
     end
 
     # Replaces all occurrences of tracks with what's in the playlist
     #
-    # client.replace_user_tracks_in_playlist('1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:4iV5W9uYEdYUVa79Axb7Rh spotify:track:2lzEz3A3XIFyhMDqzMdcss))
-    def replace_user_tracks_in_playlist(user_id, playlist_id, tracks)
-      run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/tracks", [201], JSON.dump(uris: tracks))
+    # client.replace_user_tracks_in_playlist(
+    #   '1181346016', '7i3thJWDtmX04dJhFwYb0x', %w(spotify:track:... spotify:track:...)
+    # )
+    def replace_user_tracks_in_playlist(_user_id, playlist_id, tracks)
+      run(:put, "/v1/playlists/#{playlist_id}/tracks", [200, 201], JSON.dump(uris: tracks))
     end
 
     # Removes all tracks in playlist
@@ -136,7 +135,7 @@ module Spotify
     end
 
     def albums(album_ids)
-      params = { ids: Array.wrap(album_ids).join(',') }
+      params = { ids: Array(album_ids).join(',') }
       run(:get, '/v1/albums', [200], params)
     end
 
@@ -145,7 +144,7 @@ module Spotify
     end
 
     def tracks(track_ids)
-      params = { ids: Array.wrap(track_ids).join(',') }
+      params = { ids: Array(track_ids).join(',') }
       run(:get, '/v1/tracks', [200], params)
     end
 
@@ -154,7 +153,7 @@ module Spotify
     end
 
     def artists(artist_ids)
-      params = { ids: Array.wrap(artist_ids).join(',') }
+      params = { ids: Array(artist_ids).join(',') }
       run(:get, '/v1/artists', [200], params)
     end
 
@@ -162,10 +161,11 @@ module Spotify
       run(:get, "/v1/artists/#{artist_id}/albums", [200])
     end
 
-    def search(entity, term, options={})
-      unless [:artist, :album, :track].include?(entity.to_sym)
-        fail(ImplementationError, "entity needs to be either artist, album or track, got: #{entity}")
+    def search(entity, term, options = {})
+      unless %i[artist album track].include?(entity.to_sym)
+        raise(ImplementationError, "entity needs to be either artist, album or track, got: #{entity}")
       end
+
       params = {
         q: term.to_s,
         type: entity
@@ -177,7 +177,7 @@ module Spotify
     #
     # +country_id+ is required. An ISO 3166-1 alpha-2 country code.
     def artist_top_tracks(artist_id, country_id)
-      run(:get, "/v1/artists/#{artist_id}/top-tracks", [200], country: country_id)
+      run(:get, "/v1/artists/#{artist_id}/top-songs", [200], market: country_id)
     end
 
     def related_artists(artist_id)
@@ -188,15 +188,26 @@ module Spotify
     #
     # client.follow('artist', ['0BvkDsjIUla7X0k6CSWh1I'])
     def follow(type, ids)
-      params = { type: type, ids: Array.wrap(ids).join(',') }
-      run(:put, "/v1/me/following", [204], params)
+      _type = type # kept for backward-compatible signature
+      params = { ids: Array(ids).join(',') }
+      run(:put, '/v1/me/library', [200, 204], params)
     end
 
     # Follow a playlist
     #
     # client.follow_playlist('lukebryan', '0obRj9nNySESpFelMCLSya')
-    def follow_playlist(user_id, playlist_id, is_public = true)
-      run(:put, "/v1/users/#{user_id}/playlists/#{playlist_id}/followers", [200], { public: is_public })
+    def follow_playlist(_user_id, playlist_id, is_public = true)
+      run(:put, "/v1/playlists/#{playlist_id}/followers", [200, 204], { public: is_public })
+    end
+
+    # Generic API helper for forward compatibility with newly added endpoints.
+    def request(verb, path, expected_status_codes = [200], params_or_body = {}, idempotent = true)
+      run(verb.to_sym, path, Array(expected_status_codes), params_or_body, idempotent)
+    end
+
+    # Bang variant that propagates mapped API errors.
+    def request!(verb, path, expected_status_codes = [200], params_or_body = {}, idempotent = true)
+      run!(verb.to_sym, path, Array(expected_status_codes), params_or_body, idempotent)
     end
 
     protected
@@ -204,11 +215,9 @@ module Spotify
     def run(verb, path, expected_status_codes, params = {}, idempotent = true)
       run!(verb, path, expected_status_codes, params, idempotent)
     rescue Error => e
-      if @raise_errors
-        raise e
-      else
-        false
-      end
+      raise e if @raise_errors
+
+      false
     end
 
     def run!(verb, path, expected_status_codes, params_or_body = nil, idempotent = true)
@@ -222,7 +231,7 @@ module Spotify
         retry_limit: @retries,
         headers: {
           'Content-Type' => 'application/json',
-          'User-Agent'   => 'Spotify Ruby Client'
+          'User-Agent' => 'Spotify Ruby Client'
         }
       }
       if params_or_body.is_a?(Hash)
@@ -231,30 +240,29 @@ module Spotify
         packet.merge!(body: params_or_body)
       end
 
-      if !@access_token.nil? && @access_token != ''
-        packet[:headers].merge!('Authorization' => "Bearer #{@access_token}")
-      end
+      packet[:headers].merge!('Authorization' => "Bearer #{@access_token}") if !@access_token.nil? && @access_token != ''
 
       # puts "\033[31m [Spotify] HTTP Request: #{verb.upcase} #{BASE_URI}#{path} #{packet[:headers].inspect} \e[0m"
       response = @connection.request(packet)
-      ::JSON.load(response.body)
+      return {} if response.body.nil? || response.body.empty?
 
-    rescue Excon::Errors::NotFound => exception
-      raise(ResourceNotFound, "Error: #{exception.message}")
-    rescue Excon::Errors::BadRequest => exception
-      raise(BadRequest, "Error: #{exception.message}")
-    rescue Excon::Errors::Forbidden => exception
-      raise(InsufficientClientScopeError, "Error: #{exception.message}")
-    rescue Excon::Errors::Unauthorized => exception
-      raise(AuthenticationError, "Error: #{exception.message}")
-    rescue Excon::Errors::Error => exception
+      ::JSON.parse(response.body)
+    rescue Excon::Errors::NotFound => e
+      raise(ResourceNotFound, "Error: #{e.message}")
+    rescue Excon::Errors::BadRequest => e
+      raise(BadRequest, "Error: #{e.message}")
+    rescue Excon::Errors::Forbidden => e
+      raise(InsufficientClientScopeError, "Error: #{e.message}")
+    rescue Excon::Errors::Unauthorized => e
+      raise(AuthenticationError, "Error: #{e.message}")
+    rescue Excon::Errors::Error => e
       # Catch all others errors. Samples:
       #
       # <Excon::Errors::SocketError: Connection refused - connect(2) (Errno::ECONNREFUSED)>
       # <Excon::Errors::InternalServerError: Expected([200, 204, 404]) <=> Actual(500 InternalServerError)>
       # <Excon::Errors::Timeout: read timeout reached>
       # <Excon::Errors::BadGateway: Expected([200]) <=> Actual(502 Bad Gateway)>
-      raise(HTTPError, "Error: #{exception.message}")
+      raise(HTTPError, "Error: #{e.message}")
     end
   end
 end

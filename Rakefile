@@ -1,15 +1,16 @@
-require 'rake'
-require 'rake/testtask'
+# frozen_string_literal: true
 
-Rake::TestTask.new do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = false
+require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
+require 'rubocop/rake_task'
+
+RSpec::Core::RakeTask.new(:spec)
+RuboCop::RakeTask.new(:lint) do |task|
+  task.patterns = ['lib/**/*.rb', '*.gemspec', 'Rakefile']
 end
 
-task :default => :test
+task default: %i[lint spec]
 
 task :console do
-  exec "EXCON_DEBUG=true irb -r spotify-client -I ./lib"
-  # exec "irb -r spotify-client -I ./lib"
+  exec 'EXCON_DEBUG=true irb -r spotify-client -I ./lib'
 end

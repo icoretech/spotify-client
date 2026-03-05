@@ -1,24 +1,36 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-$:.unshift File.expand_path('../lib', __FILE__)
-require 'spotify/version'
+lib = File.expand_path('lib', __dir__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+version_file = File.expand_path('lib/spotify/version.rb', __dir__)
+version = File.read(version_file).match(/VERSION = '([^']+)'/)&.captures&.first
+raise 'Could not determine gem version' unless version
 
-Gem::Specification.new do |s|
-  s.name          = "spotify-client"
-  s.version       = Spotify::VERSION
-  s.authors       = ["Claudio Poli"]
-  s.email         = ["claudio@icorete.ch"]
-  s.homepage      = "https://github.com/icoretech/spotify-client"
-  s.summary       = "Ruby client for the Spotify Web API"
-  s.description   = "Ruby client for the Spotify Web API"
+Gem::Specification.new do |spec|
+  spec.name = 'spotify-client'
+  spec.version = version
+  spec.authors = ['Claudio Poli']
+  spec.email = ['masterkain@gmail.com']
 
-  s.files         = `git ls-files app lib`.split("\n")
-  s.platform      = Gem::Platform::RUBY
-  s.require_paths = ['lib']
-  s.rubyforge_project = '[none]'
+  spec.summary = 'Ruby client for the Spotify Web API'
+  spec.description = 'Lightweight Ruby client for the Spotify Web API with playlist and catalog helpers.'
+  spec.homepage = 'https://github.com/icoretech/spotify-client'
+  spec.license = 'MIT'
+  spec.required_ruby_version = '>= 3.2'
 
-  s.add_dependency 'excon', '~> 0.37'
-  s.add_development_dependency 'rspec', '~> 3.0'
-  # s.add_development_dependency 'vcr'
-  s.add_development_dependency 'guard-rspec'
+  spec.metadata['source_code_uri'] = 'https://github.com/icoretech/spotify-client'
+  spec.metadata['bug_tracker_uri'] = 'https://github.com/icoretech/spotify-client/issues'
+  spec.metadata['changelog_uri'] = 'https://github.com/icoretech/spotify-client/releases'
+  spec.metadata['rubygems_mfa_required'] = 'true'
+
+  spec.files = Dir[
+    'lib/**/*.rb',
+    'README*',
+    'LICENSE*',
+    '*.gemspec'
+  ]
+  spec.require_paths = ['lib']
+
+  spec.add_dependency 'excon', '>= 0.112', '< 2.0'
+  spec.add_dependency 'logger', '>= 1.7'
 end

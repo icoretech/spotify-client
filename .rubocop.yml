@@ -1,0 +1,37 @@
+plugins:
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.2
+  NewCops: disable
+  SuggestExtensions: false
+  Exclude:
+    - 'spec/**/*'
+    - 'lib/spotify-client.rb'
+
+Layout/LineLength:
+  Max: 140
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Naming/FileName:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+Gemspec/DevelopmentDependencies:
+  Enabled: false
