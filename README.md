@@ -2,7 +2,7 @@
 
 Ruby client for the [Spotify Web API](https://developer.spotify.com/documentation/web-api).
 
-[![Gem Version](https://badge.fury.io/rb/spotify-client.svg)](https://rubygems.org/gems/spotify-client)
+[![Gem Version](https://badge.fury.io/rb/spotify-client.svg)](https://badge.fury.io/rb/spotify-client)
 
 ## Installation
 
