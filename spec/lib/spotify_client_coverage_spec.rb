@@ -13,6 +13,21 @@ describe Spotify::Client do
       expect(connection).to receive(:reset)
       client.close_connection
     end
+
+    it 'sends the gem version in the user agent header' do
+      connection = client.instance_variable_get(:@connection)
+
+      expect(connection).to receive(:request).with(
+        hash_including(
+          headers: hash_including(
+            'User-Agent' => "spotify-client/#{Spotify::VERSION} (Ruby)",
+            'Authorization' => 'Bearer token'
+          )
+        )
+      ).and_return(double(body: '{}'))
+
+      client.me
+    end
   end
 
   describe 'wrapper methods' do

@@ -4,6 +4,7 @@ require 'excon'
 require 'json'
 
 require 'spotify/exceptions'
+require 'spotify/version'
 require 'spotify/client/compatibility_api'
 require 'spotify/client/transport'
 

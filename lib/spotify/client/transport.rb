@@ -46,7 +46,7 @@ module Spotify
           retry_limit: @retries,
           headers: {
             'Content-Type' => 'application/json',
-            'User-Agent' => 'Spotify Ruby Client'
+            'User-Agent' => "spotify-client/#{Spotify::VERSION} (Ruby)"
           }
         }
         apply_request_payload(packet, params_or_body)
