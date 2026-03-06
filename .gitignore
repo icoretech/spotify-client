@@ -1,7 +1,9 @@
 *.gem
 *.rbc
 .bundle
+.claude/
 .config
+.desloppify/
 .yardoc
 Gemfile.lock
 InstalledFiles
@@ -11,6 +13,7 @@ doc/
 lib/bundler/man
 pkg
 rdoc
+scorecard.png
 spec/reports
 test/tmp
 test/version_tmp

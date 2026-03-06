@@ -137,6 +137,17 @@ describe Spotify::Client do
       expect(response['items']).to be_a(Array)
       expect(response['items'].count).to eq(2)
     end
+
+    it "returns false when the client is configured for non-raising errors" do
+      tolerant_client = described_class.new(access_token: 'test', raise_errors: false)
+
+      Excon.stub(
+        { :method => :get, :path => "/v1/playlists/my/items", :headers => { 'Authorization' => "Bearer test" } },
+        { :status => 401 }
+      )
+
+      expect(tolerant_client.user_playlist_tracks('masterkain', 'my')).to eq(false)
+    end
   end
 
   describe ".create_user_playlist" do

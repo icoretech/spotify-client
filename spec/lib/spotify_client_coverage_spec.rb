@@ -264,13 +264,13 @@ describe Spotify::Client do
       expect { client.search(:podcast, 'term') }.to raise_error(Spotify::ImplementationError)
     end
 
-    it 'supports generic request helper' do
-      expect(client).to receive(:run).with(:get, '/v1/me', [200], {}, true)
-      client.request('get', '/v1/me')
+    it 'supports generic request helper for query params' do
+      expect(client).to receive(:run).with(:get, '/v1/me', [200], { market: 'IT' }, true)
+      client.request('get', '/v1/me', [200], { market: 'IT' })
     end
 
-    it 'supports generic request! helper' do
-      expect(client).to receive(:run!).with(:post, '/v1/custom', [201], { foo: 'bar' }, false)
+    it 'serializes generic request! hash payloads for write verbs' do
+      expect(client).to receive(:run!).with(:post, '/v1/custom', [201], '{"foo":"bar"}', false)
       client.request!('post', '/v1/custom', [201], { foo: 'bar' }, false)
     end
   end
@@ -301,6 +301,13 @@ describe Spotify::Client do
     it 'maps generic Excon errors to HTTPError' do
       c = build_error_client
       allow(c.instance_variable_get(:@connection)).to receive(:request).and_raise(Excon::Errors::Timeout.new('timeout'))
+      expect { c.me }.to raise_error(Spotify::HTTPError)
+    end
+
+    it 'maps malformed JSON responses to HTTPError' do
+      c = build_error_client
+      allow(c.instance_variable_get(:@connection)).to receive(:request).and_return(double(body: '{'))
+
       expect { c.me }.to raise_error(Spotify::HTTPError)
     end
 

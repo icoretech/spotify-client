@@ -23,6 +23,9 @@ SimpleCov.start do
   minimum_coverage_by_file 100
 end
 
+lib_dir = File.expand_path('../lib', __dir__)
+$LOAD_PATH.unshift(lib_dir) unless $LOAD_PATH.include?(lib_dir)
+
 require 'spotify-client'
 require_relative '../lib/spotify/version'
 

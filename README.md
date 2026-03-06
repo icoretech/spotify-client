@@ -124,8 +124,8 @@ client.follow(type, ids)
 client.follow_playlist(user_id, playlist_id, is_public = true)
 
 # Generic helpers for forward compatibility
-client.request(:get, '/v1/me') # generic helper for newer endpoints
-client.request!(:post, '/v1/some-endpoint', [201], payload, false)
+client.request(:get, '/v1/me', [200], { market: 'IT' }) # GET-style hash payloads become query params
+client.request!(:post, '/v1/some-endpoint', [201], payload, false) # non-GET hash payloads are JSON encoded
 ```
 
 ## Spotify API Migration Notes
