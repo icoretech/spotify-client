@@ -30,7 +30,7 @@ jobs:
         excon: ['~> 1.4', 'head']
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set matrix environment
         run: echo "EXCON=${{ matrix.excon }}" >> "$GITHUB_ENV"
