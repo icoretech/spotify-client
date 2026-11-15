@@ -4,6 +4,8 @@
 .claude/
 .config
 .desloppify/
+.omo/
+.sisyphus/
 .yardoc
 Gemfile.lock
 InstalledFiles
