@@ -17,10 +17,11 @@
 require 'simplecov'
 
 SimpleCov.start do
-  track_files 'lib/**/*.rb'
-  add_filter '/spec/'
-  minimum_coverage 100
-  minimum_coverage_by_file 100
+  cover 'lib/**/*.rb'
+  coverage :line do
+    minimum 100
+    minimum 100, per: :file
+  end
 end
 
 lib_dir = File.expand_path('../lib', __dir__)
@@ -42,9 +43,8 @@ RSpec.configure do |config|
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
 
-  # This setting enables warnings. It's recommended, but in some cases may
-  # be too noisy due to issues in dependencies.
-  config.warnings = false
+  config.warnings = true
+  config.raise_errors_for_deprecations!
 
   # Many RSpec users commonly either run the entire suite or an individual
   # file, and it's useful to allow more verbose output when running an

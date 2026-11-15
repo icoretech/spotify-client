@@ -27,7 +27,7 @@ gem install spotify-client
 
 ## Supported Ruby Versions
 
-The CI matrix runs this gem against Ruby `3.2`, `3.3`, `3.4`, `4.0`, and `ruby-head`.
+Ruby `3.3` or newer is required. The CI matrix runs against Ruby `3.3`, `3.4`, `4.0`, and `ruby-head`, with both released Excon and its development branch.
 
 ## Usage
 
@@ -142,12 +142,14 @@ Spotify's Web API changed and removed several legacy endpoints in 2026. This gem
 
 ## Development
 
-Install dependencies and run checks:
+Use the Ruby version in `.ruby-version`, install dependencies, and run checks:
 
 ```bash
 bundle install
 bundle exec rake
 ```
+
+The suite enables Ruby warnings and requires 100% line coverage overall and per file.
 
 ## Release
 

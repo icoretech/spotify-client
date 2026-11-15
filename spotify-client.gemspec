@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.description = 'Lightweight Ruby client for the Spotify Web API with playlist and catalog helpers.'
   spec.homepage = 'https://github.com/icoretech/spotify-client'
   spec.license = 'MIT'
-  spec.required_ruby_version = '>= 3.2'
+  spec.required_ruby_version = '>= 3.3'
 
   spec.metadata['source_code_uri'] = 'https://github.com/icoretech/spotify-client'
   spec.metadata['bug_tracker_uri'] = 'https://github.com/icoretech/spotify-client/issues'
@@ -31,5 +31,5 @@ Gem::Specification.new do |spec|
   ]
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'excon', '>= 1.4', '< 2.0'
+  spec.add_dependency 'excon', '>= 1.12', '< 2.0'
 end

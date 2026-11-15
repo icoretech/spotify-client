@@ -26,8 +26,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['3.2', '3.3', '3.4', '4.0', 'ruby-head']
-        excon: ['~> 1.4', 'head']
+        ruby: ['3.3', '3.4', '4.0', 'ruby-head']
+        excon: ['~> 1.12', 'head']
+
+    env:
+      RUBYOPT: '-W:deprecated'
 
     steps:
       - uses: actions/checkout@v7
