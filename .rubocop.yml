@@ -21,6 +21,9 @@ Metrics/ClassLength:
 Metrics/MethodLength:
   Enabled: false
 
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
 Naming/FileName:
   Enabled: false
 

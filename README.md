@@ -34,7 +34,7 @@ Ruby `3.3` or newer is required. The CI matrix runs against Ruby `3.3`, `3.4`, `
 ```ruby
 config = {
   access_token: 'tk',
-  app_mode: :development, # optional; use :development to fail fast on dev-mode restricted endpoints
+  app_mode: :development, # optional; opt into guards for restricted Development Mode endpoints
   raise_errors: true,
   retries: 0,
   read_timeout: 10,
@@ -128,17 +128,38 @@ client.request(:get, '/v1/me', [200], { market: 'IT' }) # GET-style hash payload
 client.request!(:post, '/v1/some-endpoint', [201], payload, false) # non-GET hash payloads are JSON encoded
 ```
 
-## Spotify API Migration Notes
+## Spotify API Compatibility
 
-Spotify's Web API changed and removed several legacy endpoints in 2026. This gem now uses current routes while keeping backward-compatible method signatures:
+The API contracts were checked against Spotify's official documentation on November 15, 2026. The latest listed Web API changelog is July 2026.
 
-- Playlist reads/writes use `/v1/me/playlists` and `/v1/playlists/{playlist_id}/*`.
-- `follow(type, ids)` now targets `/v1/me/library` using Spotify URIs (`spotify:{type}:{id}`), while still accepting prebuilt URIs.
-- `artist_top_tracks` uses `/v1/artists/{id}/top-tracks`.
-- `user(user_id)` and `artist_top_tracks` rely on endpoints that Spotify marks unavailable for Development Mode apps (still usable for Extended Quota Mode apps).
-- If initialized with `app_mode: :development`, `user(user_id)` and `artist_top_tracks` raise `Spotify::EndpointUnavailableInDevelopmentMode` before making the HTTP request.
+| Change | Client behavior |
+| --- | --- |
+| [February: Development Mode migration](https://developer.spotify.com/documentation/web-api/references/changes/february-2026) | Playlist helpers use `/v1/me/playlists` and `/v1/playlists/{id}/items`. Library helpers and legacy follow helpers use `/v1/me/library`. |
+| [March: restored external IDs](https://developer.spotify.com/documentation/web-api/references/changes/march-2026) | Album and track responses retain `external_ids` unchanged. |
+| [May: stable account identifier](https://developer.spotify.com/documentation/web-api/references/changes/may-2026) | `me` retains `account_id`. Use this immutable identifier when linking accounts to your service. |
+| [June: refresh-token expiration](https://developer.spotify.com/blog/2026-06-18-refresh-token-expiration) | OAuth remains the caller's responsibility. Refresh tokens expire six months after the original authorization; refreshing does not extend their lifetime. Handle `invalid_grant` by asking the user to authorize again. The change applied to existing apps from July 20, 2026. |
+| [July: shared development quotas](https://developer.spotify.com/documentation/web-api/references/changes/july-2026) | HTTP 429 raises `Spotify::RateLimitError` when errors are enabled, exposing `reason` and `retry_after`. Development Mode Client IDs share their developer account's quota. |
 
-- February 2026 changes: [Spotify Web API Changes](https://developer.spotify.com/documentation/web-api/references/changes/february-2026)
+Response JSON is returned without filtering fields. Account permissions, quota mode, scopes, and playlist ownership still determine which data Spotify returns.
+
+`app_mode: :development` opts into the restricted endpoint contract: `user`, `artist_top_tracks`, and `related_artists` fail before sending a request. Omit this option for integrations that retain access to those endpoints. Spotify [postponed the endpoint-access migration for existing Development Mode integrations](https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security); the February changes do not apply to Extended Quota Mode. `related_artists` is deprecated and only remains usable by eligible integrations.
+
+Library save/remove calls follow the [current endpoint reference](https://developer.spotify.com/documentation/web-api/reference/save-library-items): comma-separated `uris` in the query, with at most 40 items per call. Spotify's February migration guide also shows a JSON-body example. Playlist additions accept at most 100 URI strings as a JSON array. Oversized batches raise `Spotify::ImplementationError`; split them into multiple calls.
+
+### Rate and quota errors
+
+Enable `raise_errors: true` or use `request!` to inspect errors. With the default `raise_errors: false`, non-bang methods continue to return `false` on HTTP errors.
+
+```ruby
+begin
+  client.request!(:get, '/v1/me')
+rescue Spotify::RateLimitError => error
+  error.reason      # "QUOTA_EXCEEDED" for the July quota response, otherwise nil
+  error.retry_after # Spotify's Retry-After header as a string, or nil
+end
+```
+
+`RateLimitError` inherits from `HTTPError`, so existing rescues still work. With the default `retries: 0`, a 429 response is returned immediately. Configured Excon retries can retry idempotent requests before exposing the final error. The client does not schedule retries from `Retry-After`; callers decide how to handle the supplied reason and retry interval.
 
 ## Development
 
@@ -153,7 +174,7 @@ The suite enables Ruby warnings and requires 100% line coverage overall and per 
 
 ## Release
 
-Pushing a tag matching `v*` triggers the release workflow that builds and publishes the gem.
+The gem version is defined in `lib/spotify/version.rb`. Push a matching `v`-prefixed tag to trigger the release workflow and publish the gem.
 
 ## License
 

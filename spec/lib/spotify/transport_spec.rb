@@ -25,7 +25,8 @@ describe Spotify::Client, 'HTTP transport' do
     client.close_connection
   end
 
-  def serve_response(status:, body:)
+  def serve_response(status:, body:, headers: {})
+    response_headers = headers.map { |name, value| "#{name}: #{value}\r\n" }.join
     @server_thread = Thread.new do
       Thread.current.report_on_exception = false
       Timeout.timeout(5) do
@@ -38,7 +39,7 @@ describe Spotify::Client, 'HTTP transport' do
         end
         request_body = socket.read(Integer(headers.fetch('content-length', '0')))
         socket.write("HTTP/1.1 #{status}\r\nContent-Type: application/json\r\n" \
-                     "Content-Length: #{body.bytesize}\r\nConnection: close\r\n\r\n#{body}")
+                     "Content-Length: #{body.bytesize}\r\n#{response_headers}Connection: close\r\n\r\n#{body}")
         { method: method, target: target, headers: headers, body: request_body }
       ensure
         socket&.close
@@ -79,5 +80,55 @@ describe Spotify::Client, 'HTTP transport' do
     expect { client.request!(:get, '/v1/me') }.to raise_error(Spotify::AuthenticationError)
 
     server.value
+  end
+
+  it 'exposes the quota reason and retry header from a real HTTP 429 response' do
+    server = serve_response(status: '429 Too Many Requests',
+                            body: '{"error":{"status":429,"message":"Too many requests","reason":"QUOTA_EXCEEDED"}}',
+                            headers: { 'retry-after' => '120' })
+
+    expect { client.request!(:get, '/v1/me') }.to raise_error(Spotify::HTTPError) { |error|
+      expect(error).to be_a(Spotify::RateLimitError)
+      expect(error.reason).to eq('QUOTA_EXCEEDED')
+      expect(error.retry_after).to eq('120')
+    }
+
+    server.value
+  end
+
+  {
+    'ordinary rate limit' => '{"error":{"status":429,"message":"Too many requests"}}',
+    'malformed body' => '<html>Too many requests</html>',
+    'empty body' => '',
+    'unexpected JSON shape' => '{"error":"Too many requests"}'
+  }.each do |description, body|
+    it "preserves the rate limit error for a response with #{description}" do
+      server = serve_response(status: '429 Too Many Requests', body: body)
+
+      expect { client.request!(:get, '/v1/me') }.to raise_error(Spotify::RateLimitError) { |error|
+        expect(error.reason).to be_nil
+        expect(error.retry_after).to be_nil
+      }
+
+      server.value
+    end
+  end
+
+  it 'returns false for a nonbang request when the server rate limits it' do
+    server = serve_response(status: '429 Too Many Requests', body: '{"error":{"reason":"QUOTA_EXCEEDED"}}')
+
+    expect(client.me).to eq(false)
+
+    server.value
+  end
+
+  it 'sends playlist cover images with their media type over HTTP' do
+    server = serve_response(status: '202 Accepted', body: '')
+
+    expect(client.upload_playlist_cover_image('sample-playlist', 'c2FtcGxlLWltYWdl')).to eq({})
+
+    request = server.value
+    expect(request).to include(method: 'PUT', target: '/v1/playlists/sample-playlist/images', body: 'c2FtcGxlLWltYWdl')
+    expect(request[:headers]).to include('content-type' => 'image/jpeg', 'authorization' => 'Bearer sample-token')
   end
 end

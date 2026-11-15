@@ -45,7 +45,10 @@ module Spotify
       end
 
       def add_user_tracks_to_playlist(_user_id, playlist_id, uris = [], position = nil)
-        params = { uris: Array(uris)[0..99].join(',') }
+        items = Array(uris)
+        raise(ImplementationError, 'playlist additions accept at most 100 URIs') if items.length > 100
+
+        params = { uris: items }
         params.merge!(position: position) if position
         run(:post, "/v1/playlists/#{playlist_id}/items", [200, 201], JSON.dump(params), false)
       end

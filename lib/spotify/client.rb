@@ -86,7 +86,8 @@ module Spotify
     end
 
     def upload_playlist_cover_image(playlist_id, image_base64_jpeg)
-      run(:put, "/v1/playlists/#{playlist_id}/images", [200, 202, 204], image_base64_jpeg.to_s, false)
+      run(:put, "/v1/playlists/#{playlist_id}/images", [200, 202, 204], image_base64_jpeg.to_s, false,
+          headers: { 'Content-Type' => 'image/jpeg' })
     end
 
     def album(album_id)
@@ -165,10 +166,11 @@ module Spotify
     # +country_id+ is required. An ISO 3166-1 alpha-2 country code.
     def artist_top_tracks(artist_id, country_id)
       raise_endpoint_unavailable_in_development_mode!(endpoint: 'GET /v1/artists/{id}/top-tracks')
-      run(:get, "/v1/artists/#{artist_id}/top-tracks", [200], country: country_id)
+      run(:get, "/v1/artists/#{artist_id}/top-tracks", [200], { market: country_id })
     end
 
     def related_artists(artist_id)
+      raise_endpoint_unavailable_in_development_mode!(endpoint: 'GET /v1/artists/{id}/related-artists')
       run(:get, "/v1/artists/#{artist_id}/related-artists", [200])
     end
 
@@ -191,7 +193,7 @@ module Spotify
     end
 
     def playback_state(params = {})
-      run(:get, '/v1/me/player', [200], params)
+      run(:get, '/v1/me/player', [200, 204], params)
     end
 
     def available_devices
@@ -245,11 +247,11 @@ module Spotify
     end
 
     def add_to_library(uris)
-      run(:put, '/v1/me/library', [200, 204], JSON.dump(uris: Array(uris)), false)
+      run(:put, '/v1/me/library', [200, 204], library_query(uris), false)
     end
 
     def remove_from_library(uris)
-      run(:delete, '/v1/me/library', [200, 204], JSON.dump(uris: Array(uris)), false)
+      run(:delete, '/v1/me/library', [200, 204], library_query(uris), false)
     end
 
     # Generic API helper for forward compatibility with newly added endpoints.
@@ -276,10 +278,17 @@ module Spotify
 
     protected
 
+    def library_query(uris)
+      items = Array(uris)
+      raise(ImplementationError, 'library requests accept at most 40 URIs') if items.length > 40
+
+      { uris: items.join(',') }
+    end
+
     def raise_endpoint_unavailable_in_development_mode!(endpoint:, replacement: nil)
       return unless development_mode?
 
-      message = "#{endpoint} is unavailable for Spotify Development Mode apps as of March 9, 2026."
+      message = "#{endpoint} is unavailable under the configured Spotify Development Mode restrictions."
       message += " Use #{replacement} instead." if replacement
       raise(EndpointUnavailableInDevelopmentMode, message)
     end

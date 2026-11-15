@@ -14,20 +14,21 @@ module Spotify
 
       protected
 
-      def run(verb, path, expected_status_codes, params = {}, idempotent = true)
-        run!(verb, path, expected_status_codes, params, idempotent)
+      def run(verb, path, expected_status_codes, params = {}, idempotent = true, headers: {})
+        run!(verb, path, expected_status_codes, params, idempotent, headers: headers)
       rescue Error => e
         handle_nonbang_error(e)
       end
 
-      def run!(verb, path, expected_status_codes, params_or_body = nil, idempotent = true)
+      def run!(verb, path, expected_status_codes, params_or_body = nil, idempotent = true, headers: {})
         response = @connection.request(
           build_request_packet(
             verb: verb,
             path: path,
             expected_status_codes: expected_status_codes,
             params_or_body: params_or_body,
-            idempotent: idempotent
+            idempotent: idempotent,
+            headers: headers
           )
         )
         parse_response_body(response)
@@ -35,7 +36,7 @@ module Spotify
         raise map_transport_error(e)
       end
 
-      def build_request_packet(verb:, path:, expected_status_codes:, params_or_body:, idempotent:)
+      def build_request_packet(verb:, path:, expected_status_codes:, params_or_body:, idempotent:, headers: {})
         packet = {
           idempotent: idempotent,
           expects: expected_status_codes,
@@ -47,7 +48,7 @@ module Spotify
           headers: {
             'Content-Type' => 'application/json',
             'User-Agent' => "spotify-client/#{Spotify::VERSION} (Ruby)"
-          }
+          }.merge(headers)
         }
         apply_request_payload(packet, params_or_body)
 
@@ -85,11 +86,28 @@ module Spotify
       end
 
       def map_transport_error(error)
+        if error.is_a?(Excon::Errors::TooManyRequests)
+          return RateLimitError.new("Error: #{error.message}",
+                                    reason: rate_limit_reason(error.response.body),
+                                    retry_after: error.response.headers['Retry-After'])
+        end
+
         error_class = EXCON_ERROR_MAP.find do |transport_error, _client_error|
           error.is_a?(transport_error)
         end&.last || HTTPError
 
         error_class.new("Error: #{error.message}")
+      end
+
+      def rate_limit_reason(body)
+        case JSON.parse(body.to_s, symbolize_names: true)
+        in { error: { reason: String => reason } }
+          reason
+        else
+          nil
+        end
+      rescue JSON::ParserError
+        nil
       end
     end
   end

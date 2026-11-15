@@ -52,12 +52,12 @@ describe Spotify::Client do
     end
 
     it 'calls add_to_library endpoint' do
-      expect(client).to receive(:run).with(:put, '/v1/me/library', [200, 204], '{"uris":["spotify:track:t1"]}', false)
+      expect(client).to receive(:run).with(:put, '/v1/me/library', [200, 204], { uris: 'spotify:track:t1' }, false)
       client.add_to_library(['spotify:track:t1'])
     end
 
     it 'calls remove_from_library endpoint' do
-      expect(client).to receive(:run).with(:delete, '/v1/me/library', [200, 204], '{"uris":["spotify:track:t1"]}', false)
+      expect(client).to receive(:run).with(:delete, '/v1/me/library', [200, 204], { uris: 'spotify:track:t1' }, false)
       client.remove_from_library(['spotify:track:t1'])
     end
 
@@ -116,7 +116,7 @@ describe Spotify::Client do
     end
 
     it 'calls playback_state endpoint' do
-      expect(client).to receive(:run).with(:get, '/v1/me/player', [200], {})
+      expect(client).to receive(:run).with(:get, '/v1/me/player', [200, 204], {})
       client.playback_state
     end
 
@@ -191,7 +191,8 @@ describe Spotify::Client do
     end
 
     it 'calls upload_playlist_cover_image endpoint' do
-      expect(client).to receive(:run).with(:put, '/v1/playlists/p1/images', [200, 202, 204], 'abc', false)
+      expect(client).to receive(:run).with(:put, '/v1/playlists/p1/images', [200, 202, 204], 'abc', false,
+                                           headers: { 'Content-Type' => 'image/jpeg' })
       client.upload_playlist_cover_image('p1', 'abc')
     end
 
@@ -256,7 +257,7 @@ describe Spotify::Client do
     end
 
     it 'calls artist_top_tracks endpoint with market' do
-      expect(client).to receive(:run).with(:get, '/v1/artists/ar1/top-tracks', [200], country: 'IT')
+      expect(client).to receive(:run).with(:get, '/v1/artists/ar1/top-tracks', [200], { market: 'IT' })
       client.artist_top_tracks('ar1', 'IT')
     end
 
@@ -266,12 +267,12 @@ describe Spotify::Client do
     end
 
     it 'calls follow endpoint using library uris payload' do
-      expect(client).to receive(:run).with(:put, '/v1/me/library', [200, 204], '{"uris":["spotify:artist:ar1"]}', false)
+      expect(client).to receive(:run).with(:put, '/v1/me/library', [200, 204], { uris: 'spotify:artist:ar1' }, false)
       client.follow('artist', ['ar1'])
     end
 
     it 'calls follow_playlist endpoint' do
-      expect(client).to receive(:run).with(:put, '/v1/me/library', [200, 204], '{"uris":["spotify:playlist:p1"]}', false)
+      expect(client).to receive(:run).with(:put, '/v1/me/library', [200, 204], { uris: 'spotify:playlist:p1' }, false)
       client.follow_playlist('u1', 'p1', false)
     end
 
